@@ -1,3 +1,8 @@
+'''
+movieAnalytic.py
+
+Read movie face data / keyword data / image to find relation between characters
+'''
 import sys
 import cv2
 import cv2.cv as cv
@@ -15,15 +20,16 @@ from lib.FaceCV import *
 from lib.faceMatch import *
 
 
-FLANN_INDEX_KDTREE = 1  # bug: flann enums are missing
+FLANN_INDEX_KDTREE = 1
 FLANN_INDEX_LSH    = 6
 
+#which directory the result to output
 OUTPUT_PATH = 'output/'
+
 
 # mutithread for increase speed
 class Pthread (threading.Thread):
     
-    threadLock = threading.Lock()
     
     def __init__(self, threadID, name, keyword,startPoint, finishPoint, minCount, mergeCount):
         threading.Thread.__init__(self)
@@ -42,20 +48,24 @@ class Pthread (threading.Thread):
         mergeByFaceMatch(self.keyword, self.startPoint, self.finishPoint, self.minCount, self.mergeCount) 
 
 
+
+# merge different face but maybe same character
 def mergeByPosition(face1, face2):
 
     if( abs(face1.getFrame() - face2.getFrame()) > (24*30) ) or face1.character == face2.character:
         return False
-    else:
+    else: 
+        # near frame
         Pos1 = face1.getPoint()   
         Pos2 = face2.getPoint()
-        #print Pos1, Pos2
+        
+        #tolerate distance for merge
         if abs(Pos1.x1 - Pos2.x1) < 20 and abs(Pos1.x2 - Pos2.x2) < 25 and abs(Pos1.y1 - Pos2.y1) < 25 and abs(Pos1.y2 - Pos2.y2) < 20:
             face2.character = face1.character
             return True
     return False
 
-
+#output the above result for not do the same thing when we dont' change the code 
 def outputCharacter(faceList):
 
     #Output character in bipartiteGraph as file
@@ -63,6 +73,7 @@ def outputCharacter(faceList):
         for face in faceList:
             outputResult.write( str(face.character) + "\n")
 
+#read the above result
 def readCharacter(faceList):
 
     characters = []
@@ -76,23 +87,25 @@ def readCharacter(faceList):
         face.character = int(characters[i])
         i+=1
 
+
+#merge by Imaging Technology
 def mergeByFaceMatch(keyword, startPoint, endPoint, minCount, mergeCount):
   
     key = []
     for character in faceLists[keyword]:
         key.append(character)
-    print len(key), len(faceLists[keyword])
+    
     endPoint = len(faceLists[keyword]) 
-
-    matchCount = 0
     try:
+        matchCount = 0
         for i in range(startPoint, endPoint):
             for j in range(startPoint, endPoint):
                 if i == j:
                     continue
                 for face1 in faceLists[keyword][key[i]]:
                     for face2 in faceLists[keyword][key[j]]:
-                        if faceCV.match(minCount, face1, face2) or faceCV.match(minCount, face2, face1) or faceCV.match(4, face1, face2) or faceCV.match(4, face2, face1):
+                        if faceCV.match(minCount, face1, face2) or faceCV.match(minCount, face2, face1) \
+                                or faceCV.match(4, face1, face2) or faceCV.match(4, face2, face1):
                             print 'merge!'
                             print keyword
                             matchCount += 1  
@@ -107,24 +120,6 @@ def mergeByFaceMatch(keyword, startPoint, endPoint, minCount, mergeCount):
         tp, val, tb = sys.exc_info()
         print  sys.stderr, str(tp), str(val)
 
-    '''
-    matchCount = 0
-    for i in range(startPoint, endPoint):
-        for j in range(i+1, endPoint):
-            for face1 in faceLists[ ]:
-                for face2 in faceLists[ key[j] ]:
-                    if faceCV.faceMatch(minCount, face1, face2):
-                        matchCount += 1   
-                        if matchCount == mergeCount:
-                            weightDic[ key2[i] ] += weightDic[ key2[j] ] 
-                            weightDic[ key2[j] ] = []
-                            faceLists[ key[i] ] += faceLists[ key[j] ]
-                            faceLists[ key[j] ] = []
-                            break
-                if matchCount == mergeCount:
-                    matchCount = 0
-                    break
-    '''
 
 def outputMergeResult(faceLists, fileName):
 
@@ -214,27 +209,26 @@ def findCharacter(faceList, nameKeyword, sec):
 
 if __name__ == '__main__':
 
-    global faceLists, detector, matcher 
-    global weightDic
-    weightDic = {}
-    mergeList = {}
-    global faceCV 
 
+    global faceLists 
+    global faceCV 
+    mergeList = {}
+
+    #initailize
+    faceCV = FaceCV(len(faceList))
+    detector, matcher = faceCV.init_feature()
     movieData  = MovieData( OUTPUT_PATH + 'preprocessedData.txt')
+    
     #get data from preprocessing.py ouputfile
     faceList, keywords = movieData.getFaceAndKeyword(0, OUTPUT_PATH)
     print 'Face Number=', len(faceList)   
     
-    faceCV = FaceCV(len(faceList))
-    detector, matcher = faceCV.init_feature()
-
 
     store = {}
     for face in faceList:
         store[face.getID()] = face 
         
     keywordDic = {}
-  
     for face in faceList:
         if face.keyword not in keywordDic:
             keywordDic[face.keyword] = []
@@ -532,16 +526,3 @@ if __name__ == '__main__':
     
        # cv2.imwrite(OUTPUT_PATH + '/result/' + str(character.keyword) + '-' + str(character.character) + '2.jpg', img)
        
-    '''
-    result = {}
-    for character1 in characterList:
-        for character2 in characterList:
-            if character1.character not in result:
-                result[character1.character] = {}
-            if character1.getID() == character2.getID():
-                continue
-            elif character1.keyword == character2.keyword:    
-                result[character1.character][character2.character] = character1.keyword
-                print character1.keyword
-    print result
-    '''   
