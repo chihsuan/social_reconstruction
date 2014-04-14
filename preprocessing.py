@@ -28,23 +28,23 @@ class Pthread (threading.Thread):
     
     threadLock = threading.Lock()
     
-    def __init__(self, threadID, name, keywordsTime):
+    def __init__(self, threadID, name, searchResult):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
-        self.keywordsTime = keywordsTime
+        self.searchResult = searchResult
 
     def run(self):
         # Get lock to synchronize threads
         # doing
         print self.name + ' start'
-        frameCapture(self.keywordsTime)
+        frameCapture(self.searchResult)
 
 
 def keywordSearch(keywordPath, subtitlePath):
     
-    #result time to keywords dictionary
-    keywordsTime = {}
+    #search result
+    searchResult = []
 
     #Read keyword file and store as list
     keywords = []
@@ -54,44 +54,60 @@ def keywordSearch(keywordPath, subtitlePath):
         for row in lines:
             keywords.append(row)
    
-    #Read movie .srt 
+    #Read movie subtitle 
     with open(subtitlePath, "r") as subtitleFile:
         subtitle = subtitleFile.readlines()    
 
     #search keyword 
-    dialog = []
-    tmp = []
-    
+    sentences = []   # every sentences in time interval
+    matchWords = []  
+    times = []      # save all time 
+    count = -1       # count the match number
+    timeID = -1
+    flag = 0
+
     for line in subtitle:
         
         # is empty line (go to next subtitle)
         if not line.strip():
-            for sentence in dialog:
+
+            #regular expression find the match word
+            for sentence in sentences:
                 for word in keywords[0]:
-                    #regular expression
                     pattern = word.lower()
                     match = re.search(pattern,sentence.lower())
                     if match:
-                        tmp.append(word)
+                        matchWords.append(word)
                 for word in keywords[1]:
                     pattern = re.compile( word.lower())
                     match = pattern.search(sentence.lower())
                     if match:
-                        tmp.append(word)
-            if len(tmp) > 0:
-               keywordsTime[time] = tmp
-            tmp = []
-            dialog = []
+                        matchWords.append(word)
+            
+            # if match the keyword then save it
+            if len(matchWords) > 0:
+               searchResult.append( Keyword(matchWords, times[timeID]) )
+               count += 1
+               flag = 1
+            matchWords = []
+            sentences = []
             continue
-        if line[0] == '0':   # time interval
-            time = line[:len(line)-3]
+    
+        # is time interval
+        if line[0] == '0':
+            times.append(line[:len(line)-3])
+            if timeID > 0 and flag == 1:
+                searchResult[count].insertLastTime(times[timeID-1])
+                searchResult[count].insertNextTime(times[timeID+1])
+            elif flag == 1:
+                searchResult[count].insertNextTime(time[timeID+1])
+            flag = 0
+            timeID += 1 
         else:
-            dialog.append(line)
+            sentences.append(line)
 
-    for time in keywordsTime:
-        print keywordsTime[time],
 
-    return keywordsTime, keywords        
+    return searchResult, keywords        
 
 
 
@@ -99,21 +115,20 @@ def get_range(dictionary, begin, end):
       return dict(itertools.islice(dictionary.iteritems(), begin, end+1)) 
 
 
-def frameCapture(keywordsTime):
+def frameCapture(searchResult):
     
     # load video
     videoInput = cv2.VideoCapture(sys.argv[1])
     keywordID = 1
     faceID = 1
 
-    for key in keywordsTime:
+    for keyword in searchResult:
         
         #tansfer time to frame
-        startFrame, finishFrame = convertTimeToframe(key)
+        startFrame, finishFrame = getFrameInterval(keyword.lastTime, keyword.currTime, keyword.nextTime)
 
-        #set up startFrame
-        framePosition = startFrame - 24*15
-        finishFrame += 24 *15
+        #set up framePosition
+        framePosition = startFrame
 
         # detect between startFrame and finishFrame
         while framePosition <= finishFrame: 
@@ -129,22 +144,22 @@ def frameCapture(keywordsTime):
                 mutiPosition = faceDetection(frame, framePosition)
                 
                 if len(mutiPosition) > 0:
-                    print keywordsTime[key]
+                    print keyword.word
                     if framePosition in frame:
                         for facePosition in mutiPosition:
-                            frames[framePosition].append( Face(facePosition, faceID, framePosition, '', keywordsTime[key], keywordID) )
+                            frames[framePosition].append( Face(facePosition, faceID, framePosition, '', keyword.word, keywordID) )
                             faceID += 1
                     else:
                         frames[framePosition] = []
                         for facePosition in mutiPosition:
-                            frames[framePosition].append( Face(facePosition, faceID, framePosition, '', keywordsTime[key], keywordID) )
+                            frames[framePosition].append( Face(facePosition, faceID, framePosition, '', keyword.word, keywordID) )
                             faceID += 1
                 
             else:
                 if framePosition not in frames and len(framesDic[framePosition]) >= 1: #face number >= 1
                     frames[framePosition] = []
                     for face in framesDic[framePosition]:
-                        frames[framePosition].append( Face(face.getPosition(), faceID, framePosition, '', keywordsTime[key], keywordID) )
+                        frames[framePosition].append( Face(face.getPosition(), faceID, framePosition, '', keyword.word, keywordID) )
                         faceID += 1 
             framePosition += 12
         keywordID += 1
@@ -152,19 +167,35 @@ def frameCapture(keywordsTime):
     videoInput.release()
 
 
-def convertTimeToframe(key):
-    
-    startTime = key[:8]
-    tmp = time.strptime(startTime.split(',')[0], '%H:%M:%S' )
-    startFrame = int(datetime.timedelta( hours = tmp.tm_hour, minutes = 
-                tmp.tm_min, seconds = tmp.tm_sec).total_seconds() * 24)
-    
-    finishTime = key[17:][:8]
-    tmp = time.strptime(finishTime.split(',')[0], '%H:%M:%S' )
-    finishFrame = int(datetime.timedelta( hours = tmp.tm_hour, minutes = 
-                tmp.tm_min, seconds = tmp.tm_sec).total_seconds() * 24)
-    
+def getFrameInterval(lastTime, currTime, nextTime):
+
+    startFrame = convertTimeToframe(lastTime[:8])
+    currFrame1 = convertTimeToframe(currTime[:8])
+    currFrame2 = convertTimeToframe(currTime[17:])
+    finishFrame = convertTimeToframe(nextTime[17:])
+   
+    print startFrame, finishFrame
+
+    if currFrame1 - startFrame > 24*60*3:
+        startFrame = currFrame1
+        print "curr1"
+    if finishFrame - currFrame2 > 24*60*3:
+        finishFrame = currFrame2
+        print "curr2"
+
     return startFrame, finishFrame
+
+
+def convertTimeToframe(theTime):
+    
+    tmp = time.strptime(theTime.split(',')[0], '%H:%M:%S' )
+    frame = int(datetime.timedelta( hours = tmp.tm_hour, minutes = 
+                tmp.tm_min, seconds = tmp.tm_sec).total_seconds() * 24)
+    
+    return frame
+
+
+
 
 def faceDetection(image, framePosition):
     
@@ -201,7 +232,7 @@ def outputFaceImage(rects, img, name):
         #saveImage[y1:y2, x1:x2] = face
         #cv2.bitwise_and(saveImage, saveImage, face)
         #cv2.imshow("detected", show)
-        saveImage = cv2.resize(face, (250, 250))
+        saveImage = cv2.resize(face, (250, 250), interpolation=cv2.INTER_CUBIC)
         cv2.imwrite( OUTPUT_PATH + 'img/'+ name + '-' + str(count) + '.jpg', saveImage)
         count +=1
 
@@ -211,11 +242,10 @@ if __name__=='__main__':
     
     global frames
     global framesDic
-    framesDic = {}
-    keywordsTime = {}
-    keywords = []
     frames = {}
-    bipartiteGraph = {}
+    framesDic = {}
+    searchResult = []
+    keywords = []
     
     movieData  = MovieData(OUTPUT_PATH + 'preprocessedData.txt')
    
@@ -231,35 +261,31 @@ if __name__=='__main__':
         #print "argv[1] is movie input path for face detection" 
         #keyword search
         print 'keyword search'
-        keywordsTime, keywords  = keywordSearch(sys.argv[2], sys.argv[3]) #keyword path, .srt path
+        searchResult, keywords  = keywordSearch(sys.argv[2], sys.argv[3]) #keyword path, .srt path
 
         if len(sys.argv) > 2:
-            for keyword in keywords[0]:
-                bipartiteGraph[keyword] = []
-            for keyword in keywords[1]:
-                bipartiteGraph[keyword] = []
             
-            keywordsTime1 = get_range(keywordsTime, 0, len(keywordsTime)/10)
-            keywordsTime2 = get_range(keywordsTime, len(keywordsTime)/10+1, len(keywordsTime)/10*2)
-            keywordsTime3 = get_range(keywordsTime, len(keywordsTime)/10*2+1, len(keywordsTime)/10*3)
-            keywordsTime4 = get_range(keywordsTime, len(keywordsTime)/10*3+1, len(keywordsTime)/10*4)
-            keywordsTime5 = get_range(keywordsTime, len(keywordsTime)/10*4+1, len(keywordsTime)/10*5)
-            keywordsTime6 = get_range(keywordsTime, len(keywordsTime)/10*5+1, len(keywordsTime)/10*6)
-            keywordsTime7 = get_range(keywordsTime, len(keywordsTime)/10*6+1, len(keywordsTime)/10*7)
-            keywordsTime8 = get_range(keywordsTime, len(keywordsTime)/10*7+1, len(keywordsTime)/10*8)
-            keywordsTime9 = get_range(keywordsTime, len(keywordsTime)/10*8+1, len(keywordsTime)/10*9)
-            keywordsTime10 = get_range(keywordsTime, len(keywordsTime)/10*9+1, len(keywordsTime))
+            searchResult1 = searchResult[0:len(searchResult)/10] #get_range(searchResult, 0, len(searchResult)/10)
+            searchResult2 = searchResult[len(searchResult)/10+1:len(searchResult)/10*2]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
+            searchResult3 = searchResult[len(searchResult)/10*2+1:len(searchResult)/10*3]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
+            searchResult4 = searchResult[len(searchResult)/10*3+1:len(searchResult)/10*4]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
+            searchResult5 = searchResult[len(searchResult)/10*4+1:len(searchResult)/10*5]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
+            searchResult6 = searchResult[len(searchResult)/10*5+1:len(searchResult)/10*6]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
+            searchResult7 = searchResult[len(searchResult)/10*6+1:len(searchResult)/10*7]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
+            searchResult8 = searchResult[len(searchResult)/10*7+1:len(searchResult)/10*8]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
+            searchResult9 = searchResult[len(searchResult)/10*8+1:len(searchResult)/10*9]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
+            searchResult10 = searchResult[len(searchResult)/10*9+1:len(searchResult)]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
 
             threads = []
-            thread1 = Pthread(1, 'Thread-1', keywordsTime1)
-            thread2 = Pthread(2, 'Thread-2', keywordsTime2)
-            thread3 = Pthread(3, 'Thread-3', keywordsTime3)
-            thread4 = Pthread(4, 'Thread-4', keywordsTime4)
-            thread5 = Pthread(5, 'Thread-5', keywordsTime5)
-            thread6 = Pthread(6, 'Thread-6', keywordsTime6)
-            thread7 = Pthread(7, 'Thread-7', keywordsTime7)
-            thread8 = Pthread(8, 'Thread-8', keywordsTime8)
-            thread9 = Pthread(9, 'Thread-9', keywordsTime9)
+            thread1 = Pthread(1, 'Thread-1', searchResult1)
+            thread2 = Pthread(2, 'Thread-2', searchResult2)
+            thread3 = Pthread(3, 'Thread-3', searchResult3)
+            thread4 = Pthread(4, 'Thread-4', searchResult4)
+            thread5 = Pthread(5, 'Thread-5', searchResult5)
+            thread6 = Pthread(6, 'Thread-6', searchResult6)
+            thread7 = Pthread(7, 'Thread-7', searchResult7)
+            thread8 = Pthread(8, 'Thread-8', searchResult8)
+            thread9 = Pthread(9, 'Thread-9', searchResult9)
             
             thread1.start()
             thread2.start()
@@ -281,7 +307,7 @@ if __name__=='__main__':
             threads.append(thread8)
             threads.append(thread9)
                
-            frameCapture(keywordsTime10)   
+            frameCapture(searchResult10)   
 
             #wait all threads complete 
             for thread in threads:
