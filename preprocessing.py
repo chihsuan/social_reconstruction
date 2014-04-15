@@ -106,6 +106,9 @@ def keywordSearch(keywordPath, subtitlePath):
         else:
             sentences.append(line)
 
+    for result in searchResult:
+        print result.word,
+
 
     return searchResult, keywords        
 
@@ -143,7 +146,7 @@ def frameCapture(searchResult):
                 #cv2.imshow('frame', frame)
                 mutiPosition = faceDetection(frame, framePosition)
                 
-                if len(mutiPosition) > 0:
+                if len(mutiPosition) == 1:
                     print keyword.word
                     if framePosition in frame:
                         for facePosition in mutiPosition:
@@ -170,18 +173,22 @@ def frameCapture(searchResult):
 def getFrameInterval(lastTime, currTime, nextTime):
 
     startFrame = convertTimeToframe(lastTime[:8])
+    
+    lastEnd = convertTimeToframe(lastTime[17:])
     currFrame1 = convertTimeToframe(currTime[:8])
     currFrame2 = convertTimeToframe(currTime[17:])
+   
+    nextStart = convertTimeToframe(nextTime[:8])
     finishFrame = convertTimeToframe(nextTime[17:])
    
     print startFrame, finishFrame
 
-    if currFrame1 - startFrame > 24*60*3:
-        startFrame = currFrame1
-        print "curr1"
-    if finishFrame - currFrame2 > 24*60*3:
-        finishFrame = currFrame2
-        print "curr2"
+    #if currFrame1 - lastEnd > 24*30*1:
+     #   startFrame = currFrame1
+      #  print "curr1"
+    #if nextStart - currFrame2 > 24*30*1:
+     #   finishFrame = currFrame2
+      #  print "curr2"
 
     return startFrame, finishFrame
 
@@ -232,7 +239,7 @@ def outputFaceImage(rects, img, name):
         #saveImage[y1:y2, x1:x2] = face
         #cv2.bitwise_and(saveImage, saveImage, face)
         #cv2.imshow("detected", show)
-        saveImage = cv2.resize(face, (250, 250), interpolation=cv2.INTER_CUBIC)
+        saveImage = cv2.resize(face, (150, 150), interpolation=cv2.INTER_CUBIC)
         cv2.imwrite( OUTPUT_PATH + 'img/'+ name + '-' + str(count) + '.jpg', saveImage)
         count +=1
 
@@ -258,62 +265,26 @@ if __name__=='__main__':
             framesDic[face.getFrame()].append(face)
 
     if len(sys.argv) > 3:
-        #print "argv[1] is movie input path for face detection" 
+        
         #keyword search
-        print 'keyword search'
+        print 'keyword search start'
         searchResult, keywords  = keywordSearch(sys.argv[2], sys.argv[3]) #keyword path, .srt path
 
         if len(sys.argv) > 2:
-            
-            searchResult1 = searchResult[0:len(searchResult)/10] #get_range(searchResult, 0, len(searchResult)/10)
-            searchResult2 = searchResult[len(searchResult)/10+1:len(searchResult)/10*2]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-            searchResult3 = searchResult[len(searchResult)/10*2+1:len(searchResult)/10*3]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-            searchResult4 = searchResult[len(searchResult)/10*3+1:len(searchResult)/10*4]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-            searchResult5 = searchResult[len(searchResult)/10*4+1:len(searchResult)/10*5]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-            searchResult6 = searchResult[len(searchResult)/10*5+1:len(searchResult)/10*6]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-            searchResult7 = searchResult[len(searchResult)/10*6+1:len(searchResult)/10*7]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-            searchResult8 = searchResult[len(searchResult)/10*7+1:len(searchResult)/10*8]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-            searchResult9 = searchResult[len(searchResult)/10*8+1:len(searchResult)/10*9]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-            searchResult10 = searchResult[len(searchResult)/10*9+1:len(searchResult)]      #get_range(searchResult, len(searchResult)/10+1, len(searchResult)/10*2)
-
+           
             threads = []
-            thread1 = Pthread(1, 'Thread-1', searchResult1)
-            thread2 = Pthread(2, 'Thread-2', searchResult2)
-            thread3 = Pthread(3, 'Thread-3', searchResult3)
-            thread4 = Pthread(4, 'Thread-4', searchResult4)
-            thread5 = Pthread(5, 'Thread-5', searchResult5)
-            thread6 = Pthread(6, 'Thread-6', searchResult6)
-            thread7 = Pthread(7, 'Thread-7', searchResult7)
-            thread8 = Pthread(8, 'Thread-8', searchResult8)
-            thread9 = Pthread(9, 'Thread-9', searchResult9)
-            
-            thread1.start()
-            thread2.start()
-            thread3.start()
-            thread4.start()
-            thread5.start()
-            thread6.start()
-            thread7.start()
-            thread8.start()
-            thread9.start()
-            
-            threads.append(thread1)
-            threads.append(thread2)
-            threads.append(thread3)
-            threads.append(thread4)
-            threads.append(thread5)
-            threads.append(thread6)
-            threads.append(thread7)
-            threads.append(thread8)
-            threads.append(thread9)
+            for i in range(0, 10):
+                thread = Pthread(i, 'Thread-'+str(i), searchResult[ len(searchResult)/10*i : len(searchResult)/10*(i+1)-1 ] )
+                thread.start()
+                threads.append(thread)
+                 
                
-            frameCapture(searchResult10)   
+            frameCapture(searchResult[ len(searchResult)/10*9 : len(searchResult) ])   
 
             #wait all threads complete 
             for thread in threads:
                 thread.join()
             
-            print frames
             
             print 'success.'
             #Ouput preprocessed data as file
@@ -324,3 +295,5 @@ if __name__=='__main__':
                         outputResult.write( 'k' + str(face.keyword) + '\n')
                         outputResult.write( '(' +str(face.keywordID) + '\n')
                         outputResult.write( str(face.getPosition()) + '\n')
+    else:
+        print "argv[1] is movie input path for face detection" 
