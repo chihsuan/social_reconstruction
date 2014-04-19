@@ -1,0 +1,127 @@
+{
+    "nodes": [
+        {
+            "group": 0, 
+            "name": "AMY", 
+            "ID": 0
+        }, 
+        {
+            "group": 1, 
+            "name": "Dad", 
+            "ID": 1
+        }, 
+        {
+            "group": 2, 
+            "name": "Robert", 
+            "ID": 2
+        }, 
+        {
+            "group": 3, 
+            "name": "Rosie", 
+            "ID": 3
+        }, 
+        {
+            "group": 4, 
+            "name": "David", 
+            "ID": 4
+        }
+    ], 
+    "links": [
+        {
+            "source": 0, 
+            "target": 1, 
+            "value": 5, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 1, 
+            "target": 0, 
+            "value": 5, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 1, 
+            "target": 2, 
+            "value": 5, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 2, 
+            "target": 1, 
+            "value": 5, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 1, 
+            "target": 3, 
+            "value": 5, 
+            "label": "Rosie"
+        }, 
+        {
+            "source": 3, 
+            "target": 1, 
+            "value": 5, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 1, 
+            "target": 4, 
+            "value": 5, 
+            "label": "David"
+        }, 
+        {
+            "source": 4, 
+            "target": 1, 
+            "value": 5, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 0, 
+            "target": 4, 
+            "value": 5, 
+            "label": "David"
+        }, 
+        {
+            "source": 4, 
+            "target": 0, 
+            "value": 5, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 0, 
+            "target": 2, 
+            "value": 5, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 2, 
+            "target": 0, 
+            "value": 5, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 2, 
+            "target": 4, 
+            "value": 5, 
+            "label": "David"
+        }, 
+        {
+            "source": 4, 
+            "target": 2, 
+            "value": 5, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 3, 
+            "target": 4, 
+            "value": 5, 
+            "label": "David"
+        }, 
+        {
+            "source": 4, 
+            "target": 3, 
+            "value": 5, 
+            "label": "Rosie"
+        }
+    ]
+}
