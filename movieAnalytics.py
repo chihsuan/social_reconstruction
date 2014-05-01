@@ -366,20 +366,6 @@ if __name__ == '__main__':
     print 'step4 start anlaytic'
 
 
-    #build bipartitleGraph
-    '''
-    bipartitleGraph = {}
-    for key in mergeList:
-        face = mergeList[key]
-        if face.keyword not in bipartitleGraph:
-            bipartitleGraph[face.keyword] = {}
-        if face.character not in bipartitleGraph[face.keyword]:
-            bipartitleGraph[face.keyword][face.character] = []
-            bipartitleGraph[face.keyword][face.character].append(face)
-        else:
-            bipartitleGraph[face.keyword][face.character].append(face)
-    '''
-
     bipartitleGraph = faceLists
 
     characterList = []
@@ -455,62 +441,7 @@ if __name__ == '__main__':
             characterList[i].keyword = keywords[1]
             characterList[i+1] = leadingRole[0].copy()
 
-    # way2
-    '''mergeList = {}
-    key = []
-    ord = {}
-    for character in characterList:
-        if character.character not in mergeList:
-            mergeList[character.character] = []
-            mergeList[character.character].append(character)
-            key.append(character.character)
-            word[character.character] = []
-            word[character.character].append(character.keyword)
-        else:
-            mergeList[character.character].append(character)
-            word[character.character].append(character.keyword)
 
-    for i in range(0, len(mergeList)):
-        for j in range(i+1, len(mergeList)):
-            for face1 in  mergeList[key[i]]:
-                for face2 in mergeList[key[j]]:
-                    if face1.keyword in word[key[j]] or face1.character == face2.character:        
-                        #print face1.keyword, face2.keyword, face1.character, face2.character
-                        continue
-                    if faceCV.match(5,face1, face2) or faceCV.match(5, face2, face1):
-                        print 'same2 character'            
-                        mergeList[key[i]] += mergeList[key[j]]
-                        mergeList[key[j]] = []
-                        #cv2.imwrite(OUTPUT_PATH  + str(face1.keyword) + '-' + str(face1.character) + '.jpg', face1.getImg())
-                        #cv2.imwrite(OUTPUT_PATH  + str(face2.keyword) + '-' + str(face2.character) + '.jpg', face2.getImg())''' 
-
-    '''
-    hasMatch = []
-    characterNumber = len(characterList)
-    for i in range(0, len(characterList)):
-        for j in range(i+1, len(characterList)):
-            if  characterList[i].keyword != characterList[j].keyword and characterList[i].character!= characterList[j].character and \
-                    faceCV.getMatchRate(characterList[i], characterList[j]) > 45: #faceCV.faceMatch(24, characterList[i], characterList[j]):
-                print 'same character', characterList[i].character, characterList[j].character
-                #cv2.imwrite(OUTPUT_PATH  + str(characterList[i].keyword) + '-' + str(characterList[i].character) + '.jpg', characterList[i].getImg())
-                #cv2.imwrite(OUTPUT_PATH  + str(characterList[j].keyword) + '-' + str(characterList[j].character) + '.jpg', characterList[j].getImg())
-                if characterList[j].character in hasMatch:
-                    characterList[i].character = characterList[j].character
-                else:
-                    characterList[j].character = characterList[i].character
-                    hasMatch.append(characterList[i].character)
-                characterNumber -= 1
-    '''
-   
-    '''characterList = []
-    for character in mergeList:
-        for face in  mergeList[character]:
-            face.character = character
-            characterList.append(face)
-    
-    characterList.sort(key = lambda x : x.keyword, reverse = True)
-
-    print'''    
 
     #bulid nodes
     nodes = []
