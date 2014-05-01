@@ -366,6 +366,20 @@ if __name__ == '__main__':
     print 'step4 start anlaytic'
 
 
+    #build bipartitleGraph
+    '''
+    bipartitleGraph = {}
+    for key in mergeList:
+        face = mergeList[key]
+        if face.keyword not in bipartitleGraph:
+            bipartitleGraph[face.keyword] = {}
+        if face.character not in bipartitleGraph[face.keyword]:
+            bipartitleGraph[face.keyword][face.character] = []
+            bipartitleGraph[face.keyword][face.character].append(face)
+        else:
+            bipartitleGraph[face.keyword][face.character].append(face)
+    '''
+
     bipartitleGraph = faceLists
 
     characterList = []
@@ -378,44 +392,48 @@ if __name__ == '__main__':
     #output leadingRole img
     for i in range(0, len(leadingRole)):
         cv2.imwrite(OUTPUT_PATH + '/leadingRole/' + leadingKeyword + str(i) + '.jpg'  , leadingRole[i].getImg())
-   
+
     
+    characterSort = {}
     #find the keyword relation top2 (character1 character2)
     for word in bipartitleGraph:
         if word == leadingKeyword:
             continue
         print word,
         sortList =  sorted(bipartitleGraph[word], key = lambda k: len(bipartitleGraph[word][k]), reverse = True) 
-        print len(bipartitleGraph[word]), len(bipartitleGraph[word][sortList[0]]), len(sortList)
+       
+        characterSort[word] = []
+        for i in sortList:
+            if len(bipartitleGraph[word][i]) > 0:
+                characterSort[word].append( bipartitleGraph[word][i][0] )
 
-        #output img for refine the result
-        name = 0
-        for character in sortList:
-            if len(bipartitleGraph[word][character]) > 0:
-                cv2.imwrite(OUTPUT_PATH + '/sort/' + word + str(name) + '.jpg'  ,bipartitleGraph[word][character][0].getImg())
-                name +=1
-            
 
-        if len(sortList) > 1 and len(bipartitleGraph[word][sortList[1]]) > 0:
+        if len(characterSort[word]) > 1:
             
             #add character1
-            character1 = bipartitleGraph[word][sortList[0]][0]
+            character1 = characterSort[word][0]
             characterList.append(character1)
            
             #add character2 who is not similarity to character1
             move = 1
             while move < len(sortList):
-                character2 = bipartitleGraph[word][sortList[move]][0]
+                character2 = characterSort[word][move]
                 move += 1
                 if faceCV.match(20, character1, character2) or faceCV.match(20, character1, character2):
                     continue
+                else:
+                    break
             if move != len(sortList):
                 characterList.append(character2)
             else:
-                characterList.append(bipartitleGraph[word][sortList[1]][0])
-    
+                characterList.append(characterSort[word][1])
+            if move != 1:
+                temp = characterSort[word][1]
+                characterSort[word][1] = characterSort[word][move-1]
+                characterSort[word][move-1] = temp
+            print move
     detector, matcher = faceCV.init_feature('orb') 
-    
+
 
     #use leadingRole face match rate to decide character1 and character2 which is leadingRole
     for i in range(0, len(characterList), 2):
@@ -442,7 +460,6 @@ if __name__ == '__main__':
             characterList[i+1] = leadingRole[0].copy()
 
 
-
     #bulid nodes
     nodes = []
     characterNode = {}
@@ -452,7 +469,7 @@ if __name__ == '__main__':
         if character.keyword in characterNode:
             continue
         else:
-            nodes.append({'group':i, 'name': character.keyword })
+            nodes.append({'group':i, 'name': character.keyword, 'ID': i })
             characterNode[character.keyword] = i
             i += 1
 
@@ -473,6 +490,18 @@ if __name__ == '__main__':
     with open(OUTPUT_PATH + '/result/data.json', 'w') as outfile:
         json.dump({'nodes':nodes, 'links': edges}, outfile, indent = 4)
 
+    for word in characterSort:
+        count = -1
+        if '-' in word:
+            keyword = word.split('-')[1]
+        else:
+            keyword = word
+       
+        for character in characterSort[word]:
+            if count >= 1:
+                img = cv2.imread(OUTPUT_PATH + '/img/' + str(character.getFrame()) + '-' + '1.jpg' )
+                cv2.imwrite(OUTPUT_PATH + '/result/' + keyword + str(count) + '.jpg', img)
+            count += 1
 
     for character in characterList:
         point = character.getPoint()
@@ -480,7 +509,8 @@ if __name__ == '__main__':
         face = img
         face = cv2.imread(OUTPUT_PATH + '/img/' + str(character.getFrame()) + '-' + '1.jpg' )
         #face = img[point.y1:point.y2, point.x1:point.x2]
-        cv2.imwrite(OUTPUT_PATH + '/result/' + str(character.keyword) + '.jpg', face)
+        cv2.imwrite(OUTPUT_PATH + '/result/' + str(character.keyword) + '0.jpg', face)
+        cv2.imwrite(OUTPUT_PATH + '/character/' + str(character.keyword) + '.jpg', face)
     
        # cv2.imwrite(OUTPUT_PATH + '/result/' + str(character.keyword) + '-' + str(character.character) + '2.jpg', img)
        
