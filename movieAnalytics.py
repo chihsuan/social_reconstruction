@@ -66,27 +66,6 @@ def mergeByPosition(face1, face2):
             return True
     return False
 
-#output the above result for not do the same thing when we dont' change the code 
-def outputCharacter(faceList):
-
-    #Output character in bipartiteGraph as file
-    with open ( OUTPUT_PATH+ 'character.txt', 'w') as outputResult:
-        for face in faceList:
-            outputResult.write( str(face.character) + "\n")
-
-#read the above result
-def readCharacter(faceList):
-
-    characters = []
-    with open(OUTPUT_PATH + 'character.txt', 'r') as readFile:
-        lines = readFile.readlines()
-        for line in lines:
-            characters.append(line[:len(line)-1])
-
-    i = 0
-    for face in faceList:
-        face.character = int(characters[i])
-        i+=1
 
 
 #merge by Imaging Technology
@@ -124,33 +103,6 @@ def mergeByFaceMatch(keyword, startPoint, endPoint, minCount, mergeCount):
     for j in remove:
         del faceLists[keyword][key[j]]
 
-def outputMergeResult(faceLists, fileName):
-
-    with open (OUTPUT_PATH + str(fileName), 'w') as outputResult:
-        for keyword in faceLists:
-            for character in faceLists[keyword]:
-                if  len(faceLists[keyword][character]) >= 1 :
-                    outputResult.write( str(faceLists[keyword][character][0].character) + "\n")
-                    for face in faceLists[keyword][character]: 
-                        outputResult.write( str(face.getID()) + "\n" )
-                    outputResult.write( "\n" )
-
-def readMergeResult(mergeList, store, fileName):
-    
-    with open(OUTPUT_PATH +fileName, 'r') as readFile:
-        lines = readFile.readlines()
-
-        i = 0
-        while i < len(lines)-1:
-            line = lines[i]
-            character = line[:len(line)-1]        
-            while lines[i].strip():
-                line = lines[i]
-                mergeList[ int(line[:len(line)-1]) ] = store[int(line[: len(line)-1])]
-                mergeList[ int(line[:len(line)-1]) ].character = character  
-                i += 1
-            i += 1
-                 
 
 def faceClassification(faceList, pivotKeyword, minute, exclude):
     
@@ -197,10 +149,6 @@ def faceClassification(faceList, pivotKeyword, minute, exclude):
                 addIndex = []
                 currentWordCount = 0 
 
-
-    '''for key in faceLists:
-        for face in faceLists[key]:
-            face.keyword = key'''
 
     return faceLists, wordClassified    
 
@@ -365,20 +313,6 @@ if __name__ == '__main__':
     #step4 start anlaytic
     print 'step4 start anlaytic'
 
-
-    #build bipartitleGraph
-    '''
-    bipartitleGraph = {}
-    for key in mergeList:
-        face = mergeList[key]
-        if face.keyword not in bipartitleGraph:
-            bipartitleGraph[face.keyword] = {}
-        if face.character not in bipartitleGraph[face.keyword]:
-            bipartitleGraph[face.keyword][face.character] = []
-            bipartitleGraph[face.keyword][face.character].append(face)
-        else:
-            bipartitleGraph[face.keyword][face.character].append(face)
-    '''
 
     bipartitleGraph = faceLists
 
