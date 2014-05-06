@@ -36,14 +36,14 @@ class Pthread (threading.Thread):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
-
         #time in moive that we want to detect faces 
         self.searchResult = searchResult
 
     def run(self):
         print self.name + ' start'
+        threadLock.acquire()
         frameCapture(self.searchResult)
-
+        threadLock.release()
 
 def keywordSearch(keywordPath, subtitlePath):
     
@@ -272,9 +272,8 @@ if __name__=='__main__':
         
         if len(sys.argv) > 2:
            
-            frameCapture(searchResult)   
-
-            '''threads = []
+            threadLock = threading.Lock() 
+            threads = []
             for i in range(0, 10):
                 thread = Pthread(i, 'Thread-'+str(i), searchResult[ len(searchResult)/10*i : len(searchResult)/10*(i+1)-1 ] )
                 thread.start()
@@ -285,7 +284,7 @@ if __name__=='__main__':
 
             #wait all threads complete 
             for thread in threads:
-                thread.join()'''
+                thread.join()
                     
             
             print 'success.'
