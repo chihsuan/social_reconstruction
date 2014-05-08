@@ -5,17 +5,13 @@ from Point import *
 class Face(object):
 
     character = -1
-    keyword = ''
+    #keyword = ''
     keywordID = 0
     matchID = 0
 
 
-    def  __init__(self, position, ID, frame):
-        self.ID = ID
-        self.position = Point(position)
-        self.frame = frame
-        self.character = ID
-        self.matchID = 0
+    def copy(self):
+        return Face(self.getPosition(), self.ID, self.frame, self.img, self.keyword, self.keywordID )
 
     def  __init__(self, position, ID, frame, img, keyword, keywordID):
         self.character = ID
@@ -55,3 +51,6 @@ class Face(object):
 
     def getPoint(self):
         return self.position
+
+    def setKeyword(self, keyword):
+        self.keyword = keyword
