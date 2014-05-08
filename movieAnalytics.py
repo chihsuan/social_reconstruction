@@ -19,7 +19,7 @@ from lib.Point import *
 from lib.MovieData import *
 from lib.FaceCV import *
 from lib.faceMatch import *
-
+from graph_tool.all import *
 
 FLANN_INDEX_KDTREE = 1
 FLANN_INDEX_LSH    = 6
@@ -253,9 +253,36 @@ def outputResultImage(characterList, characterSort):
         cv2.imwrite(OUTPUT_PATH + '/result/' + str(character.keyword) + '0.jpg', face)
         cv2.imwrite(OUTPUT_PATH + '/character/' + str(character.keyword) + '.jpg', face)
 
+def outputGraph(faceLists, output_name):
+	graph = Graph()
+	eweight = graph.new_edge_property("int")
+	vTag = graph.new_vertex_property("int")
+   	for key in faceLists:
+   		v1 = graph.add_vertex()
+   		for character in faceLists[key]:
+			v2 = graph.add_vertex()
+			e = graph.add_edge(v1, v2)
+			eweight[e] = len(faceLists[key][character])
+			vTag[v2] = faceLists[key][character][0].getID()
+		graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output=  key + '-' + output_name + ".png")
+		graph = Graph()
+
+def outputOneGraph(face1, face2):
+	graph = Graph()
+	eweight = graph.new_edge_property("int")
+	vTag = graph.new_vertex_property("int")
+   	v0 = graph.add_vertex()
+   	v1 = graph.add_vertex()
+	v2 = graph.add_vertex()
+	vTag[v1] = face1.getID()
+	vTag[v2] = face2.getID()
+	e1 = graph.add_edge(v0, v1)
+	e2 = graph.add_edge(v0, v2)
+	graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output = face1.keyword +  "-result.png")
+	
 
 if __name__ == '__main__':
-
+	
 
     #initailize data object
     movieData  = MovieData( OUTPUT_PATH + 'preprocessedData.txt')
@@ -332,6 +359,8 @@ if __name__ == '__main__':
             else:
                  faceLists[face.keyword][face.character].append(face)
 
+	outputGraph(faceLists, output_name = "before-merge")
+
 
     print 'Step4 merge faceList by match'
     #initailize mutithread
@@ -361,6 +390,7 @@ if __name__ == '__main__':
     print 'step5 start anlaytic find character'
     bipartitleGraph = faceLists
     characterList = []
+    outputGraph(faceLists,"after-merge")
     
     #find leading role
     sortList =  sorted(bipartitleGraph[leadingKeyword], key = lambda k: len(bipartitleGraph[leadingKeyword][k]), reverse = True) 
@@ -400,15 +430,18 @@ if __name__ == '__main__':
                     continue
                 else:
                     break
-            if move != len(sortList):
-                characterList.append(character2)
-            else:
-                characterList.append(characterSort[word][1])
+            if move >= len(sortList):
+           		character2 = characterSort[word][1] 
             if move != 1:
                 temp = characterSort[word][1]
                 characterSort[word][1] = characterSort[word][move-1]
                 characterSort[word][move-1] = temp
+           	characterList.append(character2)
+            outputOneGraph(character1, character2)
             print move
+    	else:
+			characterList.append(characterList[word][0])
+			characterList.append(characterList[word][0])
 
     
     #use leadingRole face match rate to decide character1 and character2 which is leadingRole
