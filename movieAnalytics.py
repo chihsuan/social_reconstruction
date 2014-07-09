@@ -1,6 +1,5 @@
 '''
 movieAnalytic.py
-
 Read movie face data / keyword data / image to find relation between characters
 '''
 import sys
@@ -264,21 +263,21 @@ def outputGraph(faceLists, output_name):
 			e = graph.add_edge(v1, v2)
 			eweight[e] = len(faceLists[key][character])
 			vTag[v2] = faceLists[key][character][0].getID()
-		graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output=  key + '-' + output_name + ".png")
+		graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output=  'output/graph/' +  key + '-' + output_name + ".png")
 		graph = Graph()
 
 def outputOneGraph(face1, face2):
 	graph = Graph()
 	eweight = graph.new_edge_property("int")
 	vTag = graph.new_vertex_property("int")
-   	v0 = graph.add_vertex()
-   	v1 = graph.add_vertex()
+	v0 = graph.add_vertex()
+	v1 = graph.add_vertex()
 	v2 = graph.add_vertex()
 	vTag[v1] = face1.getID()
 	vTag[v2] = face2.getID()
 	e1 = graph.add_edge(v0, v1)
 	e2 = graph.add_edge(v0, v2)
-	graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output = face1.keyword +  "-result.png")
+	graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output = 'output/graph/' +  face1.keyword +  "-result.png")
 	
 
 if __name__ == '__main__':
@@ -380,7 +379,7 @@ if __name__ == '__main__':
         thread.start()
         threads.append(thread)
   
-    mergeByFaceMatch(leadingKeyword, 0, len(faceLists[leadingKeyword].keys()), 15, mergeCount)
+    mergeByFaceMatch(leadingKeyword, 0, len(faceLists[leadingKeyword].keys()), 10, mergeCount)
 
     #wait all threads complete 
     for thread in threads:
@@ -423,7 +422,7 @@ if __name__ == '__main__':
            
             #add character2 who is not similarity to character1
             move = 1
-            while move < len(sortList):
+            while move <= len(sortList):
                 character2 = characterSort[word][move]
                 move += 1
                 if faceCV.match(20, character1, character2) or faceCV.match(20, character1, character2):
@@ -439,9 +438,10 @@ if __name__ == '__main__':
            	characterList.append(character2)
             outputOneGraph(character1, character2)
             print move
+
     	else:
-			characterList.append(characterList[word][0])
-			characterList.append(characterList[word][0])
+					characterList.append(characterList[word][0])
+					characterList.append(characterList[word][0])
 
     
     #use leadingRole face match rate to decide character1 and character2 which is leadingRole
