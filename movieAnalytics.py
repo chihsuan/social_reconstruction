@@ -28,8 +28,8 @@ OUTPUT_PATH = 'output/'
 
 # mutithread for increase speed
 class Pthread (threading.Thread):
-    
-    
+
+
     def __init__(self, threadID, name, keyword,startPoint, finishPoint, minCount, mergeCount):
         threading.Thread.__init__(self)
         self.threadID = threadID
@@ -57,7 +57,7 @@ def mergeByPosition(face1, face2):
         # near frame
         Pos1 = face1.getPoint()   
         Pos2 = face2.getPoint()
-        
+
         #tolerate distance for merge
         if abs(Pos1.x1 - Pos2.x1) < 20 and abs(Pos1.x2 - Pos2.x2) < 25 and abs(Pos1.y1 - Pos2.y1) < 25 and abs(Pos1.y2 - Pos2.y2) < 20:
             face2.character = face1.character
@@ -66,7 +66,7 @@ def mergeByPosition(face1, face2):
 
 
 def faceClassification(faceList, pivotKeyword, minute, exclude):
-    
+
     hasPivotKeyword = False
     currentWord = pivotKeyword
     currentFrame = faceList[0].getFrame()
@@ -103,7 +103,7 @@ def faceClassification(faceList, pivotKeyword, minute, exclude):
 
         if faceList[i].keyword != pivotKeyword \
                 and faceList[i].keyword != currentWord:
-            currentWord = faceList[i].keyword
+                    currentWord = faceList[i].keyword
             currentFrame = faceList[i].getFrame()
             if currentWord != pivotKeyword:
                 hasPivotKeyword= False
@@ -130,7 +130,7 @@ def findCharacter(faceList, nameKeyword, sec):
         elif faceList[i].keyword == nameKeyword:
             addIndex.append(i) 
             hasNameKeyword = True
-        
+
         if faceList[i].getFrame() > (24*sec + currentFrame) and hasNameKeyword:
             print 'Add face to', nameKeyword
             for index in addIndex:
@@ -143,26 +143,26 @@ def findCharacter(faceList, nameKeyword, sec):
 
 
 def findRelationship():
-   
+
     relationList = {}
     wordClassified.append(leadingKeyword)
     exclude = [leadingKeyword]
     for keyword in keywordDic:
-            tmpList, tmpClassified = faceClassification(faceList, keyword, 3, exclude)
+        tmpList, tmpClassified = faceClassification(faceList, keyword, 3, exclude)
             exclude.append(keyword)
             relationList[keyword] = tmpClassified[:]
             print keyword, relationList[keyword]
-    
+
     return relationList
 
 #merge by Imaging Technology
 def mergeByFaceMatch(keyword, startPoint, endPoint, minCount, mergeCount):
-  
+
     remove = []
     key = []
     for character in faceLists[keyword]:
         key.append(character)
-    
+
     endPoint = len(faceLists[keyword]) 
     try:
         matchCount = 0
@@ -193,7 +193,7 @@ def mergeByFaceMatch(keyword, startPoint, endPoint, minCount, mergeCount):
 
 
 def outputJson(characterList):
-   
+
     #for record pair of character and node ID
     characterNode = {}
 
@@ -221,7 +221,7 @@ def outputJson(characterList):
 
     #json dumps
     print json.dumps({ 'nodes':nodes, 'links': edges})
- 
+
     #output json file
     with open(OUTPUT_PATH + '/result/data.json', 'w') as outfile:
         json.dump({'nodes':nodes, 'links': edges}, outfile, indent = 4)
@@ -236,7 +236,7 @@ def outputResultImage(characterList, characterSort):
             keyword = word.split('-')[1]
         else:
             keyword = word
-       
+
         for character in characterSort[word]:
             if count >= 1:
                 img = cv2.imread(OUTPUT_PATH + '/img/' + str(character.getFrame()) + '-' + '1.jpg' )
@@ -253,62 +253,62 @@ def outputResultImage(characterList, characterSort):
         cv2.imwrite(OUTPUT_PATH + '/character/' + str(character.keyword) + '.jpg', face)
 
 def outputGraph(faceLists, output_name):
-	graph = Graph()
-	eweight = graph.new_edge_property("int")
-	vTag = graph.new_vertex_property("int")
-   	for key in faceLists:
-   		v1 = graph.add_vertex()
-   		for character in faceLists[key]:
-			v2 = graph.add_vertex()
-			e = graph.add_edge(v1, v2)
-			eweight[e] = len(faceLists[key][character])
-			vTag[v2] = faceLists[key][character][0].getID()
-		graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output=  'output/graph/' +  key + '-' + output_name + ".png")
-		graph = Graph()
+    graph = Graph()
+    eweight = graph.new_edge_property("int")
+    vTag = graph.new_vertex_property("int")
+    for key in faceLists:
+        v1 = graph.add_vertex()
+        for character in faceLists[key]:
+            v2 = graph.add_vertex()
+            e = graph.add_edge(v1, v2)
+            eweight[e] = len(faceLists[key][character])
+            vTag[v2] = faceLists[key][character][0].getID()
+        graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output=  'output/graph/' +  key + '-' + output_name + ".png")
+        graph = Graph()
 
 def outputOneGraph(face1, face2):
-	graph = Graph()
-	eweight = graph.new_edge_property("int")
-	vTag = graph.new_vertex_property("int")
-	v0 = graph.add_vertex()
-	v1 = graph.add_vertex()
-	v2 = graph.add_vertex()
-	vTag[v1] = face1.getID()
-	vTag[v2] = face2.getID()
-	e1 = graph.add_edge(v0, v1)
-	e2 = graph.add_edge(v0, v2)
-	graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output = 'output/graph/' +  face1.keyword +  "-result.png")
-	
+    graph = Graph()
+    eweight = graph.new_edge_property("int")
+    vTag = graph.new_vertex_property("int")
+    v0 = graph.add_vertex()
+    v1 = graph.add_vertex()
+    v2 = graph.add_vertex()
+    vTag[v1] = face1.getID()
+    vTag[v2] = face2.getID()
+    e1 = graph.add_edge(v0, v1)
+    e2 = graph.add_edge(v0, v2)
+    graph_draw(graph, edge_text = eweight,edge_font_size= 20, edge_text_distance = 10, edge_marker_size= 20,vertex_text = vTag, vertex_font_size =20, output = 'output/graph/' +  face1.keyword +  "-result.png")
+
 
 if __name__ == '__main__':
-	
+
 
     #initailize data object
     movieData  = MovieData( OUTPUT_PATH + 'preprocessedData.txt')
     #get data from preprocessing.py ouputfile
     faceList, keywords = movieData.getFaceAndKeyword(0, OUTPUT_PATH)
     print 'Face Number=', len(faceList)   
-    
+
     #initailize faceCV object
     faceCV = FaceCV(len(faceList))
     detector, matcher = faceCV.init_feature('sift')
-    
 
-   
+
+
     # see whether the face keyword and image are matched
     store = {}
     for face in faceList:
         store[face.getID()] = face 
         cv2.imwrite(OUTPUT_PATH + '/tmp/' + face.keyword + str(face.getID()) + '.jpg', face.getImg() )
-     
-     
+
+
     #step1 find face in near position
     print 'Step1 merge faceList by position'
     for i in range(0, len(faceList) ):
         for j in range(i, len(faceList) ):
             mergeByPosition(faceList[i], faceList[j])
 
-    
+
     #step2 find the leadingRole's keyword
     print 'step2 find the leadingRole\'s keyword'
     keywordDic = {}
@@ -316,14 +316,14 @@ if __name__ == '__main__':
         if face.keyword not in keywordDic:
             keywordDic[face.keyword] = []
         keywordDic[face.keyword].append(face)
-   
+
     # get the leadingRole's keyword
     tmp = 0
     for key in keywordDic:
         if len(keywordDic[key]) > tmp:
             tmp = len(keywordDic[key])
             leadingKeyword = key
-    
+
     print leadingKeyword 
 
     print 'step3 start find the relation graph'
@@ -333,16 +333,16 @@ if __name__ == '__main__':
 
     #classfiy if a time interval only has keyword and leadingKeyword (relation)
     classifiedList, wordClassified =  faceClassification(faceList, leadingKeyword, 0.5, [])
-    
+
     #add leadingRoleList to list
     classifiedList[leadingKeyword] = keywordDic[leadingKeyword]
-    
+
     #add keyword that did not add before
     for key in keywordDic:
         if key not in wordClassified:
             print key
             classifiedList[key] = keywordDic[key]
-    
+
     #find other character and another character's relation
     relationList = findRelationship()
 
@@ -356,9 +356,9 @@ if __name__ == '__main__':
                 faceLists[face.keyword][face.character] = []
                 faceLists[face.keyword][face.character].append(face)
             else:
-                 faceLists[face.keyword][face.character].append(face)
+                faceLists[face.keyword][face.character].append(face)
 
-	outputGraph(faceLists, output_name = "before-merge")
+    outputGraph(faceLists, output_name = "before-merge")
 
 
     print 'Step4 merge faceList by match'
@@ -367,7 +367,7 @@ if __name__ == '__main__':
     mergeCount = 1
     threadID = 0
 
-    
+
     keywords = keywordDic.keys()
     threadLock = threading.Lock()
     threads = []
@@ -378,7 +378,7 @@ if __name__ == '__main__':
         threadID += 1
         thread.start()
         threads.append(thread)
-  
+
     mergeByFaceMatch(leadingKeyword, 0, len(faceLists[leadingKeyword].keys()), 10, mergeCount)
 
     #wait all threads complete 
@@ -390,16 +390,16 @@ if __name__ == '__main__':
     bipartitleGraph = faceLists
     characterList = []
     outputGraph(faceLists,"after-merge")
-    
+
     #find leading role
     sortList =  sorted(bipartitleGraph[leadingKeyword], key = lambda k: len(bipartitleGraph[leadingKeyword][k]), reverse = True) 
     leadingRole = bipartitleGraph[leadingKeyword][sortList[0]] + bipartitleGraph[leadingKeyword][sortList[1]] 
-   
+
     #output leadingRole img
     for i in range(0, len(leadingRole)):
         cv2.imwrite(OUTPUT_PATH + '/leadingRole/' + leadingKeyword + str(i) + '.jpg'  , leadingRole[i].getImg())
 
-    
+
     characterSort = {}
     #find the keyword relation top2 (character1 character2)
     for word in bipartitleGraph:
@@ -407,7 +407,7 @@ if __name__ == '__main__':
             continue
         print word,
         sortList =  sorted(bipartitleGraph[word], key = lambda k: len(bipartitleGraph[word][k]), reverse = True) 
-       
+
         characterSort[word] = []
         for i in sortList:
             if len(bipartitleGraph[word][i]) > 0:
@@ -415,11 +415,11 @@ if __name__ == '__main__':
 
 
         if len(characterSort[word]) > 1:
-            
+
             #add character1
             character1 = characterSort[word][0]
             characterList.append(character1)
-           
+
             #add character2 who is not similarity to character1
             move = 1
             while move <= len(sortList):
@@ -430,20 +430,20 @@ if __name__ == '__main__':
                 else:
                     break
             if move >= len(sortList):
-           		character2 = characterSort[word][1] 
+                character2 = characterSort[word][1] 
             if move != 1:
                 temp = characterSort[word][1]
                 characterSort[word][1] = characterSort[word][move-1]
                 characterSort[word][move-1] = temp
-           	characterList.append(character2)
+            characterList.append(character2)
             outputOneGraph(character1, character2)
             print move
 
-    	else:
-					characterList.append(characterList[word][0])
-					characterList.append(characterList[word][0])
+        else:
+            characterList.append(characterList[word][0])
+                    characterList.append(characterList[word][0])
 
-    
+
     #use leadingRole face match rate to decide character1 and character2 which is leadingRole
     detector, matcher = faceCV.init_feature('orb') 
     for i in range(0, len(characterList), 2):
@@ -454,7 +454,7 @@ if __name__ == '__main__':
             matchCount1 += faceCV.getMatchRate(face, characterList[i])
         for face in leadingRole:
             matchCount2 += faceCV.getMatchRate(face, characterList[i+1])
-        
+
 
         keywords = characterList[i].keyword.split('-')
         if len(keywords) != 2:

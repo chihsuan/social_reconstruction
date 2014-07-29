@@ -31,7 +31,7 @@ HAAR_CASCADE_PATH = "input/haarcascades/haarcascade_frontalface_alt.xml"
 
 #thread imporve image processes efficient 
 class Pthread (threading.Thread):
-    
+
     def __init__(self, threadID, name, searchResult):
         threading.Thread.__init__(self)
         self.threadID = threadID
@@ -46,14 +46,14 @@ class Pthread (threading.Thread):
         threadLock.release()
 
 def keywordSearch(keywordPath, subtitlePath):
-    
+
     #search result
     searchResult = []
 
     #Read keyword file and store as list
     keywords = readKeyword(keywordPath)
     subtitle = readSubtitle(subtitlePath)    
-    
+
     sentences = []
     time = []
     hasMatch = False
@@ -61,7 +61,7 @@ def keywordSearch(keywordPath, subtitlePath):
 
     #start search keyword 
     for eachLine in subtitle:
-        
+
         matchWords = []
         #empty line(end block)
         if not eachLine.strip():
@@ -72,26 +72,26 @@ def keywordSearch(keywordPath, subtitlePath):
                     match = re.search(pattern,sentence.lower())
                     if match:
                         matchWords.append(word)
-            
+
             hasMatch = False
             # if match the keyword then save it
             if len(matchWords) > 0:
-               searchResult.append( Keyword(matchWords, time[count]) )
+                searchResult.append( Keyword(matchWords, time[count]) )
                hasMatch = True
 
             sentences = []
             continue
-    
+
         #Time information
         if eachLine[0] == '0':
             time.append(eachLine[:len(eachLine)-3])
-            
+
             if  hasMatch and len(time) > 1:
                 searchResult[len(searchResult)-1].insertLastTime(time[count-1])
                 searchResult[len(searchResult)-1].insertNextTime(time[count+1])
             elif hasMatch:
                 searchResult[len(searchResult)-1].insertNextTime(time[count+1])
-            
+
             count += 1
         else:
             #content
@@ -110,7 +110,7 @@ def readSubtitle(subtitlePath):
     with open(subtitlePath, "r") as subtitleFile:
         subtitle = subtitleFile.readlines()    
     return subtitle
-    #Read keyword file and store as list
+#Read keyword file and store as list
 
 
 def readKeyword(keywordPath):
@@ -127,14 +127,14 @@ def readKeyword(keywordPath):
 
 
 def frameCapture(searchResult):
-    
+
     # load video
     videoInput = cv2.VideoCapture(sys.argv[1])
     keywordID = 1
     faceID = 1
 
     for keyword in searchResult:
-        
+
         #tansfer time to frame
         startFrame, finishFrame = getFrameInterval(keyword.lastTime, keyword.currTime, keyword.nextTime)
 
@@ -143,17 +143,17 @@ def frameCapture(searchResult):
 
         # detect between startFrame and finishFrame
         while framePosition <= finishFrame: 
-            
+
             #if framePosition not in framesDic:
-                
+
             videoInput.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, framePosition)
             flag, frame = videoInput.read()
             mutiPosition = []
-             
+
             #cv2.imwrite( OUTPUT_PATH + 'img/0.jpg', frame)
             #cv2.imshow('frame', frame)
             mutiPosition = faceDetection(frame, framePosition)
-            
+
             if len(mutiPosition) == 1:
                 print keyword.word
                 if framePosition in frame:
@@ -165,7 +165,7 @@ def frameCapture(searchResult):
                     for facePosition in mutiPosition:
                         frames[framePosition].append( Face(facePosition, faceID, framePosition, '', keyword.word, keywordID) )
                         faceID += 1
-            
+
             '''else:
                 if framePosition not in frames and len(framesDic[framePosition]) >= 1: #face number >= 1
                     frames[framePosition] = []
@@ -181,42 +181,42 @@ def frameCapture(searchResult):
 def getFrameInterval(lastTime, currTime, nextTime):
 
     startFrame = convertTimeToframe(lastTime[:8])
-    
+
     lastEnd = convertTimeToframe(lastTime[17:])
     currFrame1 = convertTimeToframe(currTime[:8])
     currFrame2 = convertTimeToframe(currTime[17:])
-   
+
     nextStart = convertTimeToframe(nextTime[:8])
     finishFrame = convertTimeToframe(nextTime[17:])
-   
+
     print startFrame, finishFrame
 
     if (currFrame1 - lastEnd) > 24*30:
         startFrame = currFrame1
         print "-curr1-"
     if (nextStart - currFrame2) > 24*30:
-          finishFrame = currFrame2
+        finishFrame = currFrame2
           print "-curr2-"
 
     return startFrame, finishFrame
 
 
 def convertTimeToframe(theTime):
-    
+
     tmp = time.strptime(theTime.split(',')[0], '%H:%M:%S' )
     frame = int(datetime.timedelta( hours = tmp.tm_hour, minutes = 
-                tmp.tm_min, seconds = tmp.tm_sec).total_seconds() * 24)
-    
+        tmp.tm_min, seconds = tmp.tm_sec).total_seconds() * 24)
+
     return frame
 
 
 def faceDetection(image, framePosition):
-    
+
     faces = []
-    
+
     frame = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
     detected = frame.detectMultiScale(image, 1.1, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 140) )  #40 150  #25, 160 #20 140
-    
+
     if len(detected) == 0 or len(detected) > 1:
         return []
 
@@ -234,7 +234,6 @@ def faceDetection(image, framePosition):
 def outputFaceImage(rects, img, name):
 
     #background = cv2.imread( OUTPUT_PATH + 'img/0.jpg' )
-    
     show = img.copy()
     count = 1
     for (x1, y1, x2, y2) in rects:
@@ -244,17 +243,18 @@ def outputFaceImage(rects, img, name):
         #saveImage[y1:y2, x1:x2] = face
         #cv2.bitwise_and(saveImage, saveImage, face)
         #cv2.imshow("detected", show)
+        #cv2.waitKey()
         saveImage = cv2.resize(face, (300, 300), interpolation=cv2.INTER_CUBIC)
         cv2.imwrite( OUTPUT_PATH + 'img/'+ name + '-' + str(count) + '.jpg', saveImage)
         count +=1
 
 
 if __name__=='__main__':
-    
+
     frames = {}
-    
+
     movieData  = MovieData(OUTPUT_PATH + 'preprocessedData.txt')
-   
+
     faceList, key = movieData.getFaceAndKeyword(0, OUTPUT_PATH)
     framesDic = {}
     for face in  faceList:
@@ -265,36 +265,36 @@ if __name__=='__main__':
             framesDic[face.getFrame()].append(face)
 
     if len(sys.argv) > 3:
-        
+
         #keyword search
         print 'keyword search start'
-        searchResult, keywords  = keywordSearch(sys.argv[2], sys.argv[3]) #keyword path, .srt path
-        
-        if len(sys.argv) > 2:
-           
-            threadLock = threading.Lock() 
-            threads = []
-            for i in range(0, 10):
-                thread = Pthread(i, 'Thread-'+str(i), searchResult[ len(searchResult)/10*i : len(searchResult)/10*(i+1)-1 ] )
-                thread.start()
-                threads.append(thread)
-                 
-               
-            frameCapture(searchResult[ len(searchResult)/10*9 : len(searchResult) ])   
+        searchResult, keywords  = keywordSearch(sys.argv[3], sys.argv[2]) #keyword path, .srt path
 
-            #wait all threads complete 
-            for thread in threads:
-                thread.join()
-                    
-            
-            print 'success.'
-            #Ouput preprocessed data as file
-            with open (OUTPUT_PATH + 'preprocessedData.txt', 'w') as outputResult:
-                for framePosition in frames:
-                    outputResult.write('{' + str(framePosition) + '\n')
-                    for face in frames[framePosition]:
-                        outputResult.write( 'k' + str(face.keyword) + '\n')
-                        outputResult.write( '(' +str(face.keywordID) + '\n')
-                        outputResult.write( str(face.getPosition()) + '\n')
+        #synchronous mutithred
+        threadLock = threading.Lock() 
+        threads = []
+        threadNumber = 3
+
+        for i in range(0, threadNumber):
+            thread = Pthread(i, 'Thread-'+str(i), searchResult[ len(searchResult)/threadNumber*i : len(searchResult)/threadNumber*(i+1)-1 ] )
+            thread.start()
+            threads.append(thread)
+
+        frameCapture(searchResult[ len(searchResult)/threadNumber*(threadNumber-1) : len(searchResult) ])   
+
+        #wait all threads complete 
+        for thread in threads:
+            thread.join()
+
+
+        print 'success.'
+        #Ouput preprocessed data as file
+        with open (OUTPUT_PATH + 'preprocessedData.txt', 'w') as outputResult:
+            for framePosition in frames:
+                outputResult.write('{' + str(framePosition) + '\n')
+                for face in frames[framePosition]:
+                    outputResult.write( 'k' + str(face.keyword) + '\n')
+                    outputResult.write( '(' +str(face.keywordID) + '\n')
+                    outputResult.write( str(face.getPosition()) + '\n')
     else:
         print "argv[1] is movie input path for face detection"
