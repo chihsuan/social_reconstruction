@@ -3,6 +3,7 @@ movie preprocessing
 input: movie / subtitle / keyword
 output: face image / face position / frame / keyword
 description: main operation -- 1. keyword search 2. face detection'''
+
 import sys
 import cv2
 import cv2.cv as cv
@@ -15,28 +16,25 @@ import numpy as np
 import itertools
 import re
 import csv
+import json
 
-#custom library
 from lib.Frame import *
 from lib.Keyword import *
 from lib.MovieData import *
 
 
-#Output_Path
 OUTPUT_PATH = 'output/'
 
 #face detection learning data source
 HAAR_CASCADE_PATH = "input/haarcascades/haarcascade_frontalface_alt.xml"
 
 
-#thread imporve image processes efficient 
 class Pthread (threading.Thread):
 
     def __init__(self, threadID, name, searchResult):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
-        #time in moive that we want to detect faces 
         self.searchResult = searchResult
 
     def run(self):
@@ -77,7 +75,7 @@ def keywordSearch(keywordPath, subtitlePath):
             # if match the keyword then save it
             if len(matchWords) > 0:
                 searchResult.append( Keyword(matchWords, time[count]) )
-               hasMatch = True
+                hasMatch = True
 
             sentences = []
             continue
@@ -106,16 +104,12 @@ def keywordSearch(keywordPath, subtitlePath):
 
 
 def readSubtitle(subtitlePath):
-    #Read movie subtitle 
     with open(subtitlePath, "r") as subtitleFile:
         subtitle = subtitleFile.readlines()    
     return subtitle
-#Read keyword file and store as list
 
 
 def readKeyword(keywordPath):
-
-    #Read keyword file and store as list
     keywords = []
     with open(keywordPath, "r") as keywordsFile:
         lines = csv.reader(keywordsFile)
@@ -196,7 +190,7 @@ def getFrameInterval(lastTime, currTime, nextTime):
         print "-curr1-"
     if (nextStart - currFrame2) > 24*30:
         finishFrame = currFrame2
-          print "-curr2-"
+        print "-curr2-"
 
     return startFrame, finishFrame
 
@@ -286,15 +280,14 @@ if __name__=='__main__':
         for thread in threads:
             thread.join()
 
-
+        tojson = { }
         print 'success.'
         #Ouput preprocessed data as file
         with open (OUTPUT_PATH + 'preprocessedData.txt', 'w') as outputResult:
             for framePosition in frames:
-                outputResult.write('{' + str(framePosition) + '\n')
+                tojson[ framePosition ] = []
                 for face in frames[framePosition]:
-                    outputResult.write( 'k' + str(face.keyword) + '\n')
-                    outputResult.write( '(' +str(face.keywordID) + '\n')
-                    outputResult.write( str(face.getPosition()) + '\n')
+                    tojson[facePosition].append( { 'keyword': str(face.keyword), 'keywordID': str( face.keywordID ), 'position': str(facePosition) } )
+            json.dump( [tojson ], outputResult, indent = 4)
     else:
         print "argv[1] is movie input path for face detection"
