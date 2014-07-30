@@ -10,14 +10,16 @@ Output: keyword to time in subtitle: keyword_time_csv_file
 
 import sys
 import re
-import csv
+
+from module import csv_io
 
 MAX_KEYWORDS_IN_ONE_INTERVAL = 3
 OUTPUT_ROOT_PATH = 'output/'
 
-def keyword_search(name_file, realationship_file, subtitle_file):
+def keyword_search(name_file, relationship_file, subtitle_file):
 
-    name_list, relation_list =  read_keyword_files(name_file, realationship_file)
+    name_list =  csv_io.read_csv(name_file)
+    relation_list =  csv_io.read_csv(relationship_file)
     subtitle = read_subtitle_file(subtitle_file)
 
     name_patterns = {}
@@ -53,12 +55,7 @@ def keyword_search(name_file, realationship_file, subtitle_file):
             subtitle_interval = []
             keyword_number = 0
     
-    output_search_result(time_to_keyword)
-
-def output_search_result(time_to_keyword):
-    with open(OUTPUT_ROOT_PATH + 'keyword_list.csv', 'w') as output_file:
-        writer = csv.writer(output_file)  
-        writer.writerows(time_to_keyword)  
+    csv_io.write_csv(OUTPUT_ROOT_PATH + 'keywordSearch.csv',time_to_keyword)
 
 
 def read_subtitle_file(subtitle_file):
@@ -67,16 +64,6 @@ def read_subtitle_file(subtitle_file):
         subtitle = subtitle.readlines()
     return subtitle
 
-def read_keyword_files(name_file, relationship_file):
-    name_list = [] 
-    with open(name_file, 'r') as terms:
-        name_list = csv.reader(terms).next()
-
-    relation_list = []
-    with open(relationship_file, 'r') as relationship:
-        relation_list = csv.reader(relationship).next()
-
-    return name_list, relation_list
 
 if __name__=='__main__':
     keyword_search(sys.argv[1], sys.argv[2], sys.argv[3])

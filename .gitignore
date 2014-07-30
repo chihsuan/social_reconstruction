@@ -1,0 +1,5 @@
+module/*.pyc
+output
+output/*
+input/movie.avi
+*.swp
