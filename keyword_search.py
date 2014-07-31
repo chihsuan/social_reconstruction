@@ -14,7 +14,7 @@ Output: keyword to time in subtitle and keyword_list
 import sys
 import re
 
-from module import csv_io
+from modules import csv_io
 
 MAX_KEYWORDS_IN_ONE_INTERVAL = 3
 OUTPUT_ROOT_PATH = 'output/'
