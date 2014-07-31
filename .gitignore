@@ -1,4 +1,4 @@
-module/*.pyc
+modules/*.pyc
 output
 output/*
 input/movie.avi
