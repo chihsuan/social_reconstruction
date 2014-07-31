@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 '''
 This module is to search keywords in move subtitle.
 
@@ -18,11 +20,13 @@ MAX_KEYWORDS_IN_ONE_INTERVAL = 3
 OUTPUT_ROOT_PATH = 'output/'
 
 def keyword_search(name_file, relationship_file, subtitle_file):
-
-    name_list =  csv_io.read_csv(name_file)
-    relation_list =  csv_io.read_csv(relationship_file)
+    
+    # Read files 
+    name_list = csv_io.read_csv(name_file)
+    relation_list = csv_io.read_csv(relationship_file)
     subtitle = read_subtitle_file(subtitle_file)
 
+    # Create regular expression pattern for reuse 
     name_patterns = {}
     for name in name_list:
         name_patterns[name] = '\\b' + name.lower() + '\\b' 
@@ -31,10 +35,12 @@ def keyword_search(name_file, relationship_file, subtitle_file):
     for relation in relation_list:
         relation_patterns[relation] = '\\b' + relation.lower() + '\\b' 
 
+    # Find keyword
     time_to_keyword = []
     subtitle_interval = []
     keyword_number = 0
-    keyword_list = []
+    keyword_list = [""]
+    keyword_count = {}
     for line in subtitle:
         if line.strip():
             if len(subtitle_interval) == 1:
@@ -45,21 +51,29 @@ def keyword_search(name_file, relationship_file, subtitle_file):
                     keyword_number += 1
                     if name not in keyword_list:
                        keyword_list.append(name)
-                        
+                       keyword_count[name] = 0
+                    else:
+                       keyword_count[name] += 1 
+                         
             for relation in relation_patterns:
                 if keyword_number < MAX_KEYWORDS_IN_ONE_INTERVAL and re.search(relation_patterns[relation], line.lower()):
                     time_to_keyword.append([subtitle_time, relation])
                     keyword_number += 1
                     if relation not in keyword_list:
                        keyword_list.append(relation) 
-
+                       keyword_count[relation] = 0
+                    else:
+                       keyword_count[relation] += 1 
             subtitle_interval.append(line)
         else:
             if keyword_number == MAX_KEYWORDS_IN_ONE_INTERVAL:
                 for i in range(MAX_KEYWORDS_IN_ONE_INTERVAL):
                     time_to_keyword.pop()
-            subtitle_interval = []
-            keyword_number = 0
+            subtitle_interval=[]
+            keyword_number=0
+
+    # Find the max keyword count as leading keyword
+    keyword_list[0] = max(keyword_count, key=keyword_count.get)
 
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'keywordSearch.csv', time_to_keyword)
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'keywordList.csv', [keyword_list])
