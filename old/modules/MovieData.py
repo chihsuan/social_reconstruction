@@ -3,21 +3,6 @@ import cv2.cv as cv
 from Face import *
 
 
-def readSubtitle(subtitlePath):
-    with open(subtitlePath, "r") as subtitleFile:
-        subtitle = subtitleFile.readlines()    
-    return subtitle
-
-
-def readKeyword(keywordPath):
-    keywords = []
-    with open(keywordPath, "r") as keywordsFile:
-        lines = csv.reader(keywordsFile)
-        for row in lines:
-            keywords.append(row)
-    keywords[0] += keywords[1]
-
-    return keywords
 
 def getFaceAndKeyword(characterNumber, outputPath):
 

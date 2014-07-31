@@ -293,14 +293,11 @@ if __name__ == '__main__':
     faceCV = FaceCV(len(faceList))
     detector, matcher = faceCV.init_feature('sift')
 
-
-
     # see whether the face keyword and image are matched
     store = {}
     for face in faceList:
         store[face.getID()] = face 
         cv2.imwrite(OUTPUT_PATH + '/tmp/' + face.keyword + str(face.getID()) + '.jpg', face.getImg() )
-
 
     #step1 find face in near position
     print 'Step1 merge faceList by position'

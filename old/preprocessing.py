@@ -18,9 +18,9 @@ import re
 import csv
 import json
 
-from module.MoveData import *
-from module.Frame import *
-from module.Keyword import *
+from lib.Frame import *
+from lib.Keyword import *
+from lib.MovieData import *
 
 
 OUTPUT_PATH = 'output/'
@@ -29,6 +29,7 @@ OUTPUT_PATH = 'output/'
 HAAR_CASCADE_PATH = "input/haarcascades/haarcascade_frontalface_alt.xml"
 
 
+#thread imporve image processes efficient 
 class Pthread (threading.Thread):
 
     def __init__(self, threadID, name, searchResult):
@@ -43,22 +44,27 @@ class Pthread (threading.Thread):
         frameCapture(self.searchResult)
         threadLock.release()
 
-def keyword_search(keywordPath, subtitlePath):
+def keywordSearch(keywordPath, subtitlePath):
 
+    #search result
     searchResult = []
 
-    keyword_list = read_keyword(keywordPath)
-    subtitle = read_subtitle(subtitlePath)    
+    #Read keyword file and store as list
+    keywords = readKeyword(keywordPath)
+    subtitle = readSubtitle(subtitlePath)    
 
     sentences = []
     time = []
     hasMatch = False
     count = -1
 
+    #start search keyword 
     for eachLine in subtitle:
 
         matchWords = []
+        #empty line(end block)
         if not eachLine.strip():
+            #use regular expression find the match word
             for sentence in sentences:
                 for word in keywords[0]:
                     pattern = '\\b' + word.lower() + '\\b'
@@ -67,6 +73,7 @@ def keyword_search(keywordPath, subtitlePath):
                         matchWords.append(word)
 
             hasMatch = False
+            # if match the keyword then save it
             if len(matchWords) > 0:
                 searchResult.append( Keyword(matchWords, time[count]) )
                 hasMatch = True
@@ -74,6 +81,7 @@ def keyword_search(keywordPath, subtitlePath):
             sentences = []
             continue
 
+        #Time information
         if eachLine[0] == '0':
             time.append(eachLine[:len(eachLine)-3])
 
@@ -87,12 +95,35 @@ def keyword_search(keywordPath, subtitlePath):
         else:
             #content
             sentences.append(eachLine)
-    
+
+
     count = 0
     for result in searchResult:
         print result.word
 
     return searchResult, keywords        
+
+
+def readSubtitle(subtitlePath):
+    #Read movie subtitle 
+    with open(subtitlePath, "r") as subtitleFile:
+        subtitle = subtitleFile.readlines()    
+    return subtitle
+#Read keyword file and store as list
+
+
+def readKeyword(keywordPath):
+
+    #Read keyword file and store as list
+    keywords = []
+    with open(keywordPath, "r") as keywordsFile:
+        lines = csv.reader(keywordsFile)
+        for row in lines:
+            keywords.append(row)
+    keywords[0] += keywords[1]
+
+    return keywords
+
 
 def frameCapture(searchResult):
 
@@ -198,6 +229,7 @@ def faceDetection(image, framePosition):
     return faces
 
 
+# save the face detection result
 def outputFaceImage(rects, img, name):
 
     #background = cv2.imread( OUTPUT_PATH + 'img/0.jpg' )
@@ -220,20 +252,25 @@ if __name__=='__main__':
 
     frames = {}
 
-    '''faceList, key = getFaceAndKeyword(0, OUTPUT_PATH)
+    movieData  = MovieData(OUTPUT_PATH + 'preprocessedData.txt')
+
+    faceList, key = movieData.getFaceAndKeyword(0, OUTPUT_PATH)
     framesDic = {}
     for face in  faceList:
         if face.getFrame() not in framesDic:
             framesDic[face.getFrame()] = []
             framesDic[face.getFrame()].append(face)
         else:
-            framesDic[face.getFrame()].append(face)'''
+            framesDic[face.getFrame()].append(face)
 
     if len(sys.argv) > 3:
 
-        searchResult, keywords  = keywordSearch(sys.argv[3], sys.argv[2]) 
+        #keyword search
+        print 'keyword search start'
+        searchResult, keywords  = keywordSearch(sys.argv[3], sys.argv[2]) #keyword path, .srt path
 
-        '''threadLock = threading.Lock() 
+        #synchronous mutithred
+        threadLock = threading.Lock() 
         threads = []
         threadNumber = 3
 
@@ -244,16 +281,18 @@ if __name__=='__main__':
 
         frameCapture(searchResult[ len(searchResult)/threadNumber*(threadNumber-1) : len(searchResult) ])   
 
+        #wait all threads complete 
         for thread in threads:
-            thread.join()'''
+            thread.join()
 
-        '''tojson = { }
+        tojson = { }
         print 'success.'
+        #Ouput preprocessed data as file
         with open (OUTPUT_PATH + 'preprocessedData.txt', 'w') as outputResult:
             for framePosition in frames:
                 tojson[ framePosition ] = []
                 for face in frames[framePosition]:
                     tojson[facePosition].append( { 'keyword': str(face.keyword), 'keywordID': str( face.keywordID ), 'position': str(facePosition) } )
-            json.dump( [tojson ], outputResult, indent = 4)'''
+            json.dump( [tojson ], outputResult, indent = 4)
     else:
         print "argv[1] is movie input path for face detection"
