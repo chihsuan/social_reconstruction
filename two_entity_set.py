@@ -28,19 +28,24 @@ def find_two_entity(keyword_list_file, search_result_file):
     for row in time_to_keyword:
         start_frame, end_frame = time_format.to_frame(row)
         frame_to_keyword[start_frame] = row[1]
+    
     # Transfrom to timeline format
     frame_list = frame_to_keyword.keys()
     frame_list.sort()
     
-    leading_keyword_frames = { leading_keyword:[] }
-    for frame in frame_to_keyword:
-        if frame_to_keyword[frame] == leading_keyword:
-            leading_keyword_frames[leading_keyword].append(frame)
-
-
     # Find two entity with leadingKeword
-    leading_entity_set = get_adjacent(leading_keyword, frame_list, frame_to_keyword, 24 * 60 * 3)
-    leading_entity_set.update( leading_keyword_frames )
+    leading_entity_set, relation_set = get_adjacent(leading_keyword, frame_list, frame_to_keyword, 24 * 60 * 3)
+
+    # Add keywords that not found in last step 
+    keyword_frames = {}
+    for frame in frame_to_keyword:
+        keyword = frame_to_keyword[frame]
+        if frame_to_keyword[frame] not in relation_set:
+            if keyword not in keyword_frames:
+                keyword_frames[keyword] = []
+            keyword_frames[keyword].append(frame)
+
+    leading_entity_set.update(keyword_frames)
     json_io.write_json( OUTPUT_PAHT + 'two_entity_set.json',leading_entity_set)
 
 
@@ -52,6 +57,7 @@ def get_adjacent(pivot_keyword, frame_list, frame_to_keyword, interval):
     pivot_exist = False
     adjacent_exist = False
     previous_keyword = frame_to_keyword[frame_list[0]]
+    relation_set = []
 
     for frame in frame_list:
         # is previous_keyword or pivot_keyword 
@@ -72,13 +78,16 @@ def get_adjacent(pivot_keyword, frame_list, frame_to_keyword, interval):
         if frame >= (current_frame + interval) and adjacent_exist and pivot_exist: 
             keyword = pivot_keyword + '-' + previous_keyword
 
+            if previous_keyword not in relation_set:
+                relation_set.append(previous_keyword)
+
             for key in record_list:
                 if keyword not in adjacent_set:
                     adjacent_set[keyword] = []
                 adjacent_set[keyword].append(key)
             record_list = []
 
-    return adjacent_set
+    return adjacent_set, relation_set
 
 
 if __name__=='__main__':
