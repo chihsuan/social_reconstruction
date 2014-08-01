@@ -8,7 +8,7 @@ import sys
 from modules import csv_io
 from modules import time_format
 
-INTERVAL = 24 * 60 * 5
+INTERVAL = 24 * 60 * 10
 
 def find_relation(keyword_list_file, search_result_file):
  
@@ -32,8 +32,9 @@ def find_relation(keyword_list_file, search_result_file):
         total = sum(relation.values())
         print name,
         for person in relation:
-            if total != 0 and (float(relation[person]) / total > 0.16):
-                print person,
+            #print person, relation[person],
+            if total != 0 and (float(relation[person]) / total > (1.0/len(relation)) - 0.03 ):
+                print person , relation[person],
         print
 
 def count_ralation(keyword, keys, frame_to_keyword): 
