@@ -13,9 +13,9 @@ def face_detect(img, framePosition, size):
 
     #frame = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
     #rects = frame.detectMultiScale(img, 1.1, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20) )  #40 150  #25, 160 #20 140
-    cv2.imshow("detected", img)
-    rects = cascade.detectMultiScale(img, scaleFactor=1.05, minNeighbors=4, minSize=(35, 35), flags = cv.CV_HAAR_SCALE_IMAGE)
+    rects = cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=4, minSize=(85, 85), flags = cv.CV_HAAR_SCALE_IMAGE)
     
+    cv2.imshow("movie", img)
     if len(rects) == 0:
         return [], []
     rects[:,2:] += rects[:,:2]
@@ -33,9 +33,12 @@ def draw_rects(img, rects, color):
         cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
 
 def output_image(rects, img, file_name):
+    show = img.copy()
     for x1, y1, x2, y2 in rects:
         face = img[y1:y2, x1:x2]
-        resize_face = cv2.resize(face, (300, 300), interpolation=cv2.INTER_CUBIC)
+        cv2.rectangle(show, (x1-10, y1-10), (x2+5, y2+5), (127, 255, 0), 2) 
+        cv2.imshow("detected", show)
+        resize_face = cv2.resize(face, (150, 150), interpolation=cv2.INTER_CUBIC)
         cv2.imwrite( file_name, resize_face)
     #background = cv2.imread( OUTPUT_PATH + 'img/0.jpg' )
     #show = img.copy()
