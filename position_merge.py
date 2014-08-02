@@ -9,12 +9,12 @@ import sys
 
 from modules import json_io
 
-NEAR_FRAME = 24 * 60 * 1
-NEAR_POSITION = 10
+NEAR_FRAME = 24 * 60 * 10
+NEAR_POSITION = 15
 
 OUTPUT_PATH = 'output/'
 
-def merge_position(frame_file):
+def position_merge(frame_file):
 
     frame = json_io.read_json(frame_file)
     
@@ -24,6 +24,7 @@ def merge_position(frame_file):
         for j in range(i+1, len(frame)):
             if is_near( frame[keys[i]], frame[keys[j]] ):
                 frame[keys[j]]['face_id'] = frame[keys[i]]['face_id']
+                print 111
     
     json_io.write_json(OUTPUT_PATH + 'merge_position.json', frame)
 
@@ -35,9 +36,13 @@ def is_near(frame1, frame2):
     else:
         for i in range(4):
            distance = abs(frame1['face_position'][i] - frame2['face_position'][i])
-           if distance > NEAR_POSITION:
+           less =  0 if (i % 2 == 0) else 1
+           if distance > (NEAR_POSITION - less ):
                return False
     return True
 
 if __name__=='__main__':
-    merge_position(sys.argv[1])
+    if len(sys.argv) == 2:
+        position_merge(sys.argv[1])
+    else:
+        position_merge('output/frame.json')

@@ -6,6 +6,7 @@ output: relation.json
 
 import sys
 from modules import csv_io
+from modules import json_io
 from modules import time_format
 
 INTERVAL = 24 * 60 * 10
@@ -32,10 +33,12 @@ def find_relation(keyword_list_file, search_result_file):
         total = sum(relation.values())
         print name,
         for person in relation:
-            #print person, relation[person],
             if total != 0 and (float(relation[person]) / total > (1.0/len(relation)) - 0.03 ):
                 print person , relation[person],
         print
+
+    json_io.write_json('output/relations.json', relations)
+
 
 def count_ralation(keyword, keys, frame_to_keyword): 
     
@@ -67,4 +70,7 @@ def count_ralation(keyword, keys, frame_to_keyword):
     return relation
 
 if __name__ == '__main__':
-    find_relation(sys.argv[1], sys.argv[2])
+    if len(sys.argv) == 3:
+        find_relation(sys.argv[1], sys.argv[2])
+    else:
+        find_relation('output/keyword_list.csv', 'output/search_result.csv')

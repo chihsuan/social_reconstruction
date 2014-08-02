@@ -5,7 +5,7 @@ This program is to find two entity set in movie
 
 Define: n-entity set means there is only n keywords adjacent in a specific time interval 
 
-input: 1.keyword_list.csv 2.keyword_search_result.csv  (time_to_keyword pair in subtitle)
+input: 1.keyword_list.csv 2. search_result.csv  (time_to_keyword pair in subtitle)
 output: two_entity_set.csv
 
 '''
@@ -17,6 +17,7 @@ from modules import json_io
 from modules import time_format
 
 OUTPUT_PAHT = 'output/'
+MIN_INTETVAL = 3
 
 def find_two_entity(keyword_list_file, search_result_file):
 
@@ -34,19 +35,23 @@ def find_two_entity(keyword_list_file, search_result_file):
     frame_list.sort()
     
     # Find two entity with leadingKeword
-    leading_entity_set, relation_set = get_adjacent(leading_keyword, frame_list, frame_to_keyword, 24 * 60 * 3)
+    leading_entity_set, relation_set = get_adjacent(leading_keyword, frame_list, frame_to_keyword, 24 * 60 * MIN_INTETVAL)
+
+    # Add leading_keyword list
+    leading_entity_set.update(leading_keword_filter(leading_keyword, frame_list, frame_to_keyword, 24 * 60 * 1 ))
 
     # Add keywords that not found in last step 
     keyword_frames = {}
     for frame in frame_to_keyword:
         keyword = frame_to_keyword[frame]
-        if frame_to_keyword[frame] not in relation_set:
+        if frame_to_keyword[frame] not in relation_set and frame_to_keyword[frame] != leading_keyword:
             if keyword not in keyword_frames:
                 keyword_frames[keyword] = []
             keyword_frames[keyword].append(frame)
 
     leading_entity_set.update(keyword_frames)
-    json_io.write_json( OUTPUT_PAHT + 'two_entity_set.json',leading_entity_set)
+
+    json_io.write_json( OUTPUT_PAHT + 'entity_set.json',leading_entity_set)
 
 
 def get_adjacent(pivot_keyword, frame_list, frame_to_keyword, interval):
@@ -89,6 +94,35 @@ def get_adjacent(pivot_keyword, frame_list, frame_to_keyword, interval):
 
     return adjacent_set, relation_set
 
+def leading_keword_filter(leading_keyword, frame_list, frame_to_keyword, interval):
+
+    pivot_number = 0
+    current_frame = frame_list[0]
+    record_list = []
+    leading_keyword_list = { leading_keyword: [] }
+    
+    for frame in frame_list:
+        # is previous_keyword or pivot_keyword 
+        if frame_to_keyword[frame] == leading_keyword:
+            record_list.append(frame)
+            pivot_number += 1
+        else:
+            previous_keyword = frame_to_keyword[frame]
+            current_frame = frame
+            pivot_number = 0
+            record_list = []
+
+        # Fulfillment of the conditions
+        if frame >= (current_frame + interval) and pivot_number > 0: 
+            for key in record_list:
+                leading_keyword_list[leading_keyword].append(key)
+            record_list = []
+
+    return leading_keyword_list
+
 
 if __name__=='__main__':
-    find_two_entity(sys.argv[1], sys.argv[2])
+    if len(sys.argv) == 3:
+        find_two_entity(sys.argv[1], sys.argv[2])
+    else:
+        reconstruct_role('output/keyword_list.csv', 'output/search_result.csv')

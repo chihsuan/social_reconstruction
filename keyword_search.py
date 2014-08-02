@@ -8,7 +8,7 @@ ex: Jack, Dad
 
 Intput: -> 1 name_file 2. realationship_file 2. subtitle_file
 Output: keyword to time in subtitle and keyword_list 
-        -> 1.keyword_time_csv_file 2. keyword_list
+        -> 1.search_result_csv_file 2. keyword_list
 '''
 
 import sys
@@ -75,8 +75,8 @@ def keyword_search(name_file, relationship_file, subtitle_file):
     # Find the max keyword count as leading keyword
     keyword_list[0] = max(keyword_count, key=keyword_count.get)
 
-    csv_io.write_csv(OUTPUT_ROOT_PATH + 'keywordSearch.csv', time_to_keyword)
-    csv_io.write_csv(OUTPUT_ROOT_PATH + 'keywordList.csv', [keyword_list])
+    csv_io.write_csv(OUTPUT_ROOT_PATH + 'search_result.csv', time_to_keyword)
+    csv_io.write_csv(OUTPUT_ROOT_PATH + 'keyword_list.csv', [keyword_list])
 
 def read_subtitle_file(subtitle_file):
 
@@ -86,4 +86,8 @@ def read_subtitle_file(subtitle_file):
 
 
 if __name__=='__main__':
-    keyword_search(sys.argv[1], sys.argv[2], sys.argv[3])
+    if len(sys.argv) == 4:
+        keyword_search(sys.argv[1], sys.argv[2], sys.argv[3])
+    else:
+        keyword_search('input/name.csv', 'input/relationship.csv', 'input/movie.srt')
+
