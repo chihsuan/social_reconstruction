@@ -2,7 +2,7 @@
 
 '''
 This program is to detect the face in movie with two_entity_file and keyword_search_result (detect in specific frame)
-input: 1.movie_file (video format) 2.two_entity_file 3.keyword_search_file
+input: 1.movie_file (video format) 2.two_entity_file 3. search_result_file
 
 '''
 
@@ -34,9 +34,9 @@ class Pthread (threading.Thread):
         threadLock.release()
 
 
-def movie_prosessing(movie_file, two_entity_file, keyword_search_file):
+def movie_prosessing(movie_file, two_entity_file, search_result_file):
     two_entity_set = json_io.read_json(two_entity_file)
-    keyword_search_result = csv_io.read_csv(keyword_search_file)
+    keyword_search_result = csv_io.read_csv(search_result_file)
 
     # load video
     videoInput = cv2.VideoCapture(movie_file)
@@ -51,8 +51,8 @@ def movie_prosessing(movie_file, two_entity_file, keyword_search_file):
     face_count = 0
     for keyword in two_entity_set:
         for start_frame in two_entity_set[keyword]:
-            frame_position = start_frame - 24 * 60
-            finish_frame = start_end[start_frame] + 24 + 60
+            frame_position = start_frame - 24 * 30
+            finish_frame = start_end[start_frame] + 24 * 30
             print finish_frame
             while frame_position <= finish_frame: 
                 print frame_position
@@ -60,11 +60,12 @@ def movie_prosessing(movie_file, two_entity_file, keyword_search_file):
                 flag, img = videoInput.read()
                 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 gray = cv2.equalizeHist(gray)
-                face_position_list, rects = cv_image.face_detect(gray, frame_position, (30, 30))
+                face_position_list, rects = cv_image.face_detect(gray, frame_position, (85, 85))
                 #face_position_list, rects =  faceDetection(gray, frame_position)
                 if 0xFF & cv2.waitKey(5) == 27:
                     cv2.destroyAllWindows()
                     sys.exit(1)
+                print 'face_len', len(face_position_list)  
                 if len(face_position_list) == 1:
                     print keyword
                     image_name = keyword + str(frame_position) + '.jpg'
@@ -79,7 +80,7 @@ def movie_prosessing(movie_file, two_entity_file, keyword_search_file):
                                                   'ID' : face_count,
                                                   'frame_position': frame_position,
                                                   'face_id': face_count} 
-                frame_position += 120
+                frame_position += 12
     #close video  
     videoInput.release()
 
