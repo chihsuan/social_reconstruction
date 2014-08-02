@@ -1,1 +1,1 @@
-Harry,Ron,Hermione,Hagrid,Dumbledore,Malfoy,Dobby,Nick
+Harry,Ron,Hermione,Hagrid,Dumbledore,Malfoy,Dobby,Nick,Potter

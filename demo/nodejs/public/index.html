@@ -59,21 +59,21 @@ d3.json("result/data.json", function(error, graph) {
       .attr("r", 5)
       .style("fill", function(d) { return color(d.group); })
       .attr("xlink:href", function(d){
-	return 'result/' + d.name + "0.jpg";
+	return 'result/' + d.name + ".jpg";
    })
       .attr("width", 60)
       .attr("height",60)
       .on("dblclick.zoom", function(d) {
 		imgIndex[d.ID] += 1;
-		check = CheckImg( "result/" + d.name + imgIndex[d.ID].toString() + ".jpg" );
+		check = CheckImg( "result/" + d.name  + ".jpg" );
 		if(check){
 			d3.select(this)  
-				.attr( {"xlink:href" : "result/" + d.name + imgIndex[d.ID].toString() +'.jpg' } );
+				.attr( {"xlink:href" : "result/" + d.name +'.jpg' } ); //imgIndex[d.ID].toString()
       		}
 		else{
 			imgIndex[d.ID] = 0;
 			d3.select(this)
-				.attr( {"xlink:href" : "result/" + d.name + '0.jpg' } );
+				.attr( {"xlink:href" : "result/" + d.name + '.jpg' } );
 		}
 	})
       .call(force.drag);

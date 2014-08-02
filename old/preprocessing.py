@@ -232,7 +232,7 @@ def faceDetection(image, framePosition):
 # save the face detection result
 def outputFaceImage(rects, img, name):
 
-    #background = cv2.imread( OUTPUT_PATH + 'img/0.jpg' )
+    round = cv2.imread( OUTPUT_PATH + 'img/0.jpg' )
     show = img.copy()
     count = 1
     for (x1, y1, x2, y2) in rects:
