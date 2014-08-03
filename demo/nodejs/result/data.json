@@ -2,208 +2,352 @@
     "nodes": [
         {
             "group": 0, 
-            "name": "AMY", 
+            "name": "Dad", 
             "ID": 0
         }, 
         {
             "group": 1, 
-            "name": "Dad", 
+            "name": "Robert", 
             "ID": 1
         }, 
         {
             "group": 2, 
-            "name": "jeff", 
+            "name": "Rosie", 
             "ID": 2
         }, 
         {
             "group": 3, 
-            "name": "Rosie", 
+            "name": "AMY", 
             "ID": 3
         }, 
         {
             "group": 4, 
-            "name": "Robert", 
+            "name": "Jack", 
             "ID": 4
         }, 
         {
             "group": 5, 
-            "name": "jack", 
+            "name": "David", 
             "ID": 5
         }, 
         {
             "group": 6, 
-            "name": "David", 
+            "name": "Jeff", 
             "ID": 6
         }
     ], 
     "links": [
         {
             "source": 0, 
-            "target": 1, 
-            "value": 5, 
-            "label": "Dad"
-        }, 
-        {
-            "source": 1, 
-            "target": 0, 
-            "value": 5, 
-            "label": "AMY"
-        }, 
-        {
-            "source": 1, 
             "target": 2, 
-            "value": 5, 
-            "label": "jeff"
-        }, 
-        {
-            "source": 2, 
-            "target": 1, 
-            "value": 5, 
-            "label": "Dad"
-        }, 
-        {
-            "source": 1, 
-            "target": 3, 
-            "value": 5, 
-            "label": "Rosie"
-        }, 
-        {
-            "source": 3, 
-            "target": 1, 
-            "value": 5, 
-            "label": "Dad"
-        }, 
-        {
-            "source": 4, 
-            "target": 1, 
-            "value": 5, 
-            "label": "Dad"
-        }, 
-        {
-            "source": 1, 
-            "target": 4, 
-            "value": 5, 
-            "label": "Robert"
-        }, 
-        {
-            "source": 5, 
-            "target": 1, 
-            "value": 5, 
-            "label": "Dad"
-        }, 
-        {
-            "source": 1, 
-            "target": 5, 
-            "value": 5, 
-            "label": "jack"
-        }, 
-        {
-            "source": 1, 
-            "target": 6, 
-            "value": 5, 
-            "label": "David"
-        }, 
-        {
-            "source": 6, 
-            "target": 1, 
-            "value": 5, 
-            "label": "Dad"
-        }, 
-        {
-            "source": 3, 
-            "target": 4, 
-            "value": 5, 
-            "label": "Robert"
-        }, 
-        {
-            "source": 4, 
-            "target": 3, 
-            "value": 5, 
-            "label": "Rosie"
-        }, 
-        {
-            "source": 3, 
-            "target": 6, 
-            "value": 5, 
-            "label": "David"
-        }, 
-        {
-            "source": 6, 
-            "target": 3, 
-            "value": 5, 
-            "label": "Rosie"
-        }, 
-        {
-            "source": 3, 
-            "target": 0, 
-            "value": 5, 
-            "label": "AMY"
-        }, 
-        {
-            "source": 0, 
-            "target": 3, 
-            "value": 5, 
+            "value": 408, 
             "label": "Rosie"
         }, 
         {
             "source": 2, 
             "target": 0, 
-            "value": 5, 
-            "label": "AMY"
+            "value": 408, 
+            "label": "Dad"
         }, 
         {
             "source": 0, 
-            "target": 2, 
-            "value": 5, 
-            "label": "jeff"
-        }, 
-        {
-            "source": 4, 
-            "target": 0, 
-            "value": 5, 
-            "label": "AMY"
-        }, 
-        {
-            "source": 0, 
-            "target": 4, 
-            "value": 5, 
+            "target": 1, 
+            "value": 328, 
             "label": "Robert"
         }, 
         {
-            "source": 4, 
-            "target": 6, 
-            "value": 5, 
-            "label": "David"
-        }, 
-        {
-            "source": 6, 
-            "target": 4, 
-            "value": 5, 
-            "label": "Robert"
-        }, 
-        {
-            "source": 6, 
+            "source": 1, 
             "target": 0, 
-            "value": 5, 
-            "label": "AMY"
-        }, 
-        {
-            "source": 0, 
-            "target": 6, 
-            "value": 5, 
-            "label": "David"
+            "value": 328, 
+            "label": "Dad"
         }, 
         {
             "source": 0, 
             "target": 5, 
-            "value": 5, 
-            "label": "jack"
+            "value": 345, 
+            "label": "David"
         }, 
         {
             "source": 5, 
             "target": 0, 
-            "value": 5, 
+            "value": 345, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 0, 
+            "target": 3, 
+            "value": 406, 
             "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 0, 
+            "value": 406, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 2, 
+            "target": 0, 
+            "value": 408, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 0, 
+            "target": 2, 
+            "value": 408, 
+            "label": "Rosie"
+        }, 
+        {
+            "source": 2, 
+            "target": 1, 
+            "value": 192, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 1, 
+            "target": 2, 
+            "value": 192, 
+            "label": "Rosie"
+        }, 
+        {
+            "source": 2, 
+            "target": 5, 
+            "value": 216, 
+            "label": "David"
+        }, 
+        {
+            "source": 5, 
+            "target": 2, 
+            "value": 216, 
+            "label": "Rosie"
+        }, 
+        {
+            "source": 2, 
+            "target": 3, 
+            "value": 184, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 2, 
+            "value": 184, 
+            "label": "Rosie"
+        }, 
+        {
+            "source": 6, 
+            "target": 0, 
+            "value": 48, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 0, 
+            "target": 6, 
+            "value": 48, 
+            "label": "Jeff"
+        }, 
+        {
+            "source": 6, 
+            "target": 3, 
+            "value": 67, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 6, 
+            "value": 67, 
+            "label": "Jeff"
+        }, 
+        {
+            "source": 6, 
+            "target": 4, 
+            "value": 52, 
+            "label": "Jack"
+        }, 
+        {
+            "source": 4, 
+            "target": 6, 
+            "value": 52, 
+            "label": "Jeff"
+        }, 
+        {
+            "source": 1, 
+            "target": 0, 
+            "value": 325, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 0, 
+            "target": 1, 
+            "value": 325, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 1, 
+            "target": 2, 
+            "value": 192, 
+            "label": "Rosie"
+        }, 
+        {
+            "source": 2, 
+            "target": 1, 
+            "value": 192, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 1, 
+            "target": 5, 
+            "value": 152, 
+            "label": "David"
+        }, 
+        {
+            "source": 5, 
+            "target": 1, 
+            "value": 152, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 1, 
+            "target": 3, 
+            "value": 205, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 1, 
+            "value": 205, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 5, 
+            "target": 0, 
+            "value": 343, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 0, 
+            "target": 5, 
+            "value": 343, 
+            "label": "David"
+        }, 
+        {
+            "source": 5, 
+            "target": 2, 
+            "value": 216, 
+            "label": "Rosie"
+        }, 
+        {
+            "source": 2, 
+            "target": 5, 
+            "value": 216, 
+            "label": "David"
+        }, 
+        {
+            "source": 5, 
+            "target": 1, 
+            "value": 152, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 1, 
+            "target": 5, 
+            "value": 152, 
+            "label": "David"
+        }, 
+        {
+            "source": 5, 
+            "target": 3, 
+            "value": 184, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 5, 
+            "value": 184, 
+            "label": "David"
+        }, 
+        {
+            "source": 3, 
+            "target": 0, 
+            "value": 406, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 0, 
+            "target": 3, 
+            "value": 406, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 2, 
+            "value": 184, 
+            "label": "Rosie"
+        }, 
+        {
+            "source": 2, 
+            "target": 3, 
+            "value": 184, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 1, 
+            "value": 205, 
+            "label": "Robert"
+        }, 
+        {
+            "source": 1, 
+            "target": 3, 
+            "value": 205, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 5, 
+            "value": 184, 
+            "label": "David"
+        }, 
+        {
+            "source": 5, 
+            "target": 3, 
+            "value": 184, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 4, 
+            "value": 221, 
+            "label": "Jack"
+        }, 
+        {
+            "source": 4, 
+            "target": 3, 
+            "value": 221, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 4, 
+            "target": 0, 
+            "value": 189, 
+            "label": "Dad"
+        }, 
+        {
+            "source": 0, 
+            "target": 4, 
+            "value": 189, 
+            "label": "Jack"
+        }, 
+        {
+            "source": 4, 
+            "target": 3, 
+            "value": 221, 
+            "label": "AMY"
+        }, 
+        {
+            "source": 3, 
+            "target": 4, 
+            "value": 221, 
+            "label": "Jack"
         }
     ]
 }
