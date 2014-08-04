@@ -29,11 +29,11 @@ def keyword_search(name_file, relationship_file, subtitle_file):
     # Create regular expression pattern for reuse 
     name_patterns = {}
     for name in name_list:
-        name_patterns[name] = '\\b' + name.lower() + '\\b' 
+        name_patterns[name] = '[\s]*' + name.lower() + "[^'\w]" 
 
     relation_patterns = {}
     for relation in relation_list:
-        relation_patterns[relation] = '\\b' + relation.lower() + '\\b' 
+        relation_patterns[relation] = '[\s]*' + relation.lower() + "[^'\w]"
 
     # Find keyword
     time_to_keyword = []
