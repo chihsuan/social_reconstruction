@@ -3,5 +3,8 @@ output
 output/*
 input/movie.avi
 *.swp
-demo/nodejs/*/*.jpg
-demo/nodejs/result*
+nodejs
+tmp
+demo/output
+demo/input
+demo/public/images
