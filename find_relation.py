@@ -9,7 +9,7 @@ from modules import csv_io
 from modules import json_io
 from modules import time_format
 
-INTERVAL = 24 * 60 * 10
+INTERVAL = 24 * 60 * 4.5
 
 def find_relation(keyword_list_file, search_result_file):
  
@@ -20,7 +20,12 @@ def find_relation(keyword_list_file, search_result_file):
     frame_to_keyword = {}
     for row in time_to_keyword:
         start_frame, end_frame = time_format.to_frame(row)
+        while start_frame in frame_to_keyword:
+            start_frame = start_frame + 0.001
+        while end_frame in frame_to_keyword:
+            end_frame = end_frame + 0.001
         frame_to_keyword[start_frame] = row[1]
+        
     # Transfrom to timeline format
     frame_list = frame_to_keyword.keys()
     frame_list.sort()
@@ -28,16 +33,20 @@ def find_relation(keyword_list_file, search_result_file):
     relations = {}
     for i in range(1, len(keyword_list)):
         relations.update( {keyword_list[i] : count_ralation(keyword_list[i], frame_list, frame_to_keyword)} )
-  
+ 
+    proper_relation = {}
     for name, relation in relations.iteritems():
         total = sum(relation.values())
-        print name,
+        proper_relation[name] = {}
+        print name, 
         for person in relation:
-            if total != 0 and (float(relation[person]) / total > (1.0/len(relation)) - 0.03 ):
+            if proper_test(total, leading_keyword, person, relation):
+                proper_relation[name][person] = relation[person]
                 print person , relation[person],
+
         print
 
-    json_io.write_json('output/relations.json', relations)
+    json_io.write_json('output/relations.json', proper_relation)
 
 
 def count_ralation(keyword, keys, frame_to_keyword): 
@@ -49,7 +58,6 @@ def count_ralation(keyword, keys, frame_to_keyword):
         if current_keyword == keyword:
             backward = pivot - 1
             forward = pivot + 1
-
             while 0 < backward and keys[backward] > (keys[pivot] - INTERVAL):
                 current_keyword = frame_to_keyword[keys[backward]]
                 if current_keyword != keyword:
@@ -68,6 +76,21 @@ def count_ralation(keyword, keys, frame_to_keyword):
             lower_bound = pivot + INTERVAL
     
     return relation
+
+
+def proper_test(total, leading_keyword, person, relation):
+    if total == 0:
+        return False
+    
+    important_person = max(relation, key=relation.get)
+
+    if important_person == leading_keyword or leading_keyword not in relation:
+        if (float(relation[person]) / total > (1.0/len(relation) )):
+            return True
+    else:
+        if (float(relation[person]) / total > (1.0/len(relation) )) and  relation[person] > relation[leading_keyword]:
+            return True
+    return False
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
