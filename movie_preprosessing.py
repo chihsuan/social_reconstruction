@@ -45,17 +45,20 @@ def movie_prosessing(movie_file, two_entity_file, search_result_file):
     start_end = {}
     for row in keyword_search_result:
         start_frame, end_frame = time_format.to_frame(row)
+        while start_frame in start_end:
+            start_frame = start_frame + 0.001
+        while end_frame in start_end:
+            end_frame = end_frame + 0.001
         start_end[start_frame] = end_frame 
 
     frame = {}
     face_count = 0
     for keyword in two_entity_set:
         for start_frame in two_entity_set[keyword]:
-            frame_position = start_frame - 24 * 30
-            finish_frame = start_end[start_frame] + 24 * 30
-            print finish_frame
+            frame_position = int(start_frame) - 24 * 10
+            finish_frame = start_end[start_frame] + 24 * 10
             while frame_position <= finish_frame: 
-                print frame_position
+                print keyword
                 videoInput.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, frame_position)
                 flag, img = videoInput.read()
                 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -65,17 +68,15 @@ def movie_prosessing(movie_file, two_entity_file, search_result_file):
                 if 0xFF & cv2.waitKey(5) == 27:
                     cv2.destroyAllWindows()
                     sys.exit(1)
-                print 'face_len', len(face_position_list)  
+                
                 if len(face_position_list) == 1:
-                    print keyword
+                    print 'detected'
                     image_name = keyword + str(frame_position) + '.jpg'
                     cv_image.output_image(rects, img, OUTPUT_PATH + '/img/' + image_name)
                     for face_position in face_position_list:
-                        if frame_position in frame:
-                            break
                         face_count += 1
                         print face_count
-                        frame[frame_position] = { 'keyword' : keyword, 
+                        frame[face_count] = { 'keyword' : keyword, 
                                                   'face_position': face_position.tolist(),
                                                   'ID' : face_count,
                                                   'frame_position': frame_position,
@@ -85,24 +86,6 @@ def movie_prosessing(movie_file, two_entity_file, search_result_file):
     videoInput.release()
 
     json_io.write_json(OUTPUT_PATH + 'frame.json', frame) 
-
-
-def faceDetection(image, framePosition):
-    HAAR_CASCADE_PATH = "input/haarcascades/haarcascade_frontalface_alt.xml"
-    faces = []
-
-    frame = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
-    detected = frame.detectMultiScale(image, 1.1, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 140) )  #40 150  #25, 160 #20 140
-    
-    if len(detected) == 0 or len(detected) > 1:
-        return [], []
-
-    detected[:, 2:] += detected[:, :2]
-    name = str(framePosition)
-    for rect in detected:
-        faces.append(rect)
-
-    return faces, detected
 
 
 if __name__ == '__main__':

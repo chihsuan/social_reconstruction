@@ -100,7 +100,7 @@ def img_match(frame_list):
             face_list2 = frame_list[keys[j]]
             face1 = face_list1[0]
             face2 = face_list2[0]
-            if cv_face.match(5, face1['img'], face2['img'], face1['ID'], face2['ID'], detector, matcher):
+            if cv_face.match(15, face1['img'], face2['img'], face1['ID'], face2['ID'], detector, matcher):
                 update_id(face_list2, face1['ID'])
                 face_list1 += face_list2
                 face_list2 = []
@@ -114,4 +114,7 @@ def update_id(face_list, face_id):
 
 
 if __name__ == '__main__':
-    face_recongnition(sys.argv[1])
+    if len(sys.argv) == 2:
+        face_recongnition(sys.argv[1])
+    else:
+        face_recongnition('output/merge_position.json')

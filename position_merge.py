@@ -10,7 +10,7 @@ import sys
 from modules import json_io
 
 NEAR_FRAME = 24 * 60 * 10
-NEAR_POSITION = 15
+NEAR_POSITION = 18
 
 OUTPUT_PATH = 'output/'
 
