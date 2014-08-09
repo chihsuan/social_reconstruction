@@ -28,8 +28,9 @@ def reconstruct_role(recongition_merge_file, keword_list_file):
             for face in frame_list[frame]:
                 name = keyword + str(face['frame_position']) + '.jpg'
                 face['img'] = cv2.imread(OUTPUT_PATH + '/img/' + name)
+                print face['frame_position'], keyword
 
-    detector, matcher =  cv_face.init_feature('sift')
+    detector, matcher =  cv_face.init_feature('orb')
     # Find other characters
     face_list = {}
     character_list = {}
@@ -68,30 +69,32 @@ def reconstruct_role(recongition_merge_file, keword_list_file):
     # Use leading role image to check
     lead_role_list = character_list[leading_keyword]
     for keyword, characters in character_list.iteritems():
-        if '-' in keyword:
+        if leading_keyword in keyword and keyword != leading_keyword:
             match_count1 = 0
             match_count2 = 0
             for face in character_list[leading_keyword][0]:
                 match_count1 += cv_face.get_match_rate(face['img'], characters[0][0]['img'])
             for face in character_list[leading_keyword][0]:
                 match_count1 += cv_face.get_match_rate(face['img'], characters[1][0]['img'])
-            if match_count1 > match_count2:
+            if match_count1 >= match_count2:
                 del characters[1]
             else:
                 del characters[0]
-
+    
     # Output
     for keyword, characters in character_list.iteritems():
         for character in characters:
             if '-' in keyword:
-                keyword = keyword.split('-')[1]
+                keyword = keyword.split('-')[0]
             cv2.imwrite(OUTPUT_PATH + '/result/' + keyword + '.jpg', character[0]['img'])
             print keyword,
         print
     
+def similar_select(role_list, character_list):
+    pass
 
 if __name__=='__main__':
     if len(sys.argv) == 3:
         reconstruct_role(sys.argv[1], sys.argv[2])
     else:
-        reconstruct_role('output/face_recongition.json', 'output/keyword_list.csv')
+        reconstruct_role('output/face_recongnition.json', 'output/keyword_list.csv')

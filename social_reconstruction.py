@@ -27,15 +27,18 @@ def social_reconstruction(keyword_list_file, relations_file):
             index += 1
 
     for name, relation in relations.iteritems():
-        total = sum(relation.values())
+        #total = sum(relation.values())
         for person in relation:
-            if total != 0 and (float(relation[person]) / total > (1.0/len(relation)) - 0.03 ):
-                relation_graph['links'].append({'source': node_index[name], 'target': node_index[person],
+            #if total != 0 and (float(relation[person]) / total > (1.0/len(relation)) - 0.03 ):
+            relation_graph['links'].append({'source': node_index[name], 'target': node_index[person],
                                            'value': relation[person], 'label': person })
-                relation_graph['links'].append({'source': node_index[person], 'target': node_index[name],
+            relation_graph['links'].append({'source': node_index[person], 'target': node_index[name],
                                            'value': relation[person], 'label': name })
     print relation_graph
-    json_io.write_json('output/relation_graph.json', relation_graph)
+    json_io.write_json('output/result/relation_graph.json', relation_graph)
 
 if __name__ == '__main__':
-    social_reconstruction(sys.argv[1], sys.argv[2])
+    if len(sys.argv) == 3:
+        social_reconstruction(sys.argv[1], sys.argv[2])
+    else:
+        social_reconstruction('output/keyword_list.csv', 'output/relations.json')
