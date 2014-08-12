@@ -1,14 +1,56 @@
 // Place all the styles related to the movies controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+@import "bootstrap";
+@import "bootstrap-sprockets";
+
 
 .node {
-  stroke: #fff;
-  stroke-width: 1.5px;
+    stroke: #fff;
+    stroke-width: 1.5px;
 }
 
 .link {
-  stroke: #999;
+    stroke: #999;
 }
 
+.navbar-brand{
+    padding: 21px;
+}
+
+#show {
+    height: 630px;
+    width: 80%;
+    position: relative;
+    margin: auto auto auto 19%;    
+    border: 1px solid #E4E4E4;
+    svg{
+        position: absolute;
+    }
+}
+
+.sidebar{
+    margin-top: 5px;
+}
+
+form {
+    
+    select{
+        height: 42px;
+        margin: 10px;
+        background: transparent;
+        padding: 5px;
+    }
+    .label{
+        font-size: 16px;
+    }
+
+    input{
+        margin-top: 10px;
+    }
+
+    .submit{
+        width: 100%;
+    }
+}
 

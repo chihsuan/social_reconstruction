@@ -1,0 +1,21 @@
+<div class="col-sm-3 col-md-2 sidebar">
+    <h3>Arguments</h3>
+    <hr/>
+    <%= form_tag( '/', remote:true, method:'get', class:"form") do%>
+        <div class="form-group">
+            <%= label_tag(:distance, "Distance-Minimum", class: "label label-primary") %>
+            <%= text_field_tag(:distance, nil, placeholder: "0~100", class: "form-control") %>
+        </div>
+
+        <div class="form-group">
+            <%= label_tag(:threshold, "Match-threshold", class: "label label-success") %>
+            <%= text_field_tag(:threshold, nil, placeholder: "0~30", class: "form-control") %>
+        </div>
+
+        <div class="form-group">
+            <%= label_tag(:relation, "Match threshold", class: "label label-info") %>
+            <%= text_field_tag(:relation, nil, placeholder: "0~40", class: "form-control") %>
+        </div>
+        <%= submit_tag("Submit", onClick:"search()", class:"btn btn-primary submit") %>
+    <% end %>
+</div>

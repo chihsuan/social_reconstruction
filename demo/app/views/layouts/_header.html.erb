@@ -1,0 +1,16 @@
+<header>
+<nav class="navbar navbar-default rp-navbar" role="navigation">
+<div class="container">
+    <div class="collapse navbar-collapse" id="rp-navbar-collapse">
+         <a class="navbar-brand" href="#">Movie Analysis</a>
+        <ul class="nav navbar-nav rp-site-nav-list">
+            <%= form_tag( '/', remote:true, method:'get', class:"form-inline") do%>
+                 <div class="form-group">
+                     <%= select_tag(:movie, options_for_select([["Everybody's fine", 1], ["Harry Potter", 2], ['3 idot', 3]], selected: 1, class:"" )) %>
+                 </div>
+            <% end %>
+        </ul>
+    </div>
+</div>
+</nav>
+</header>

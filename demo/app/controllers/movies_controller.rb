@@ -34,4 +34,7 @@ class MoviesController < ApplicationController
     render :json => @data 
   end
 
+  def d3
+
+  end  
 end

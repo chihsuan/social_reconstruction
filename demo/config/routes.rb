@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   root 'movies#index'
   get 'get_data' => 'movies#get_data'
   get 'run' => 'movies#position_merge'
+  get '/d3' => "movies#d3"
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
