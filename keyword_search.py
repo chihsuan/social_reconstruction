@@ -13,6 +13,7 @@ Output: keyword to time in subtitle and keyword_list
 
 import sys
 import re
+from collections import Counter
 
 from modules import csv_io
 
@@ -43,15 +44,21 @@ def keyword_search(name_file, relationship_file, subtitle_file):
     keyword_count = {}
     for line in subtitle:
         if line.strip():
-            if len(subtitle_interval) == 1:
+            subtitle_interval.append(line)
+            if len(subtitle_interval) < 2:
+                continue
+
+            if len(subtitle_interval) == 2:
                 subtitle_time = line[:-2]
+                continue
+
             for name in name_patterns:
                 if keyword_number < MAX_KEYWORDS_IN_ONE_INTERVAL and re.search(name_patterns[name], line.lower()):
                     time_to_keyword.append([subtitle_time, name])
                     keyword_number += 1
                     if name not in keyword_list:
                        keyword_list.append(name)
-                       keyword_count[name] = 0
+                       keyword_count[name] = 1
                     else:
                        keyword_count[name] += 1 
                          
@@ -61,16 +68,31 @@ def keyword_search(name_file, relationship_file, subtitle_file):
                     keyword_number += 1
                     if relation not in keyword_list:
                        keyword_list.append(relation) 
-                       keyword_count[relation] = 0
+                       keyword_count[relation] = 1
                     else:
                        keyword_count[relation] += 1 
-            subtitle_interval.append(line)
         else:
             if keyword_number == MAX_KEYWORDS_IN_ONE_INTERVAL:
                 for i in range(MAX_KEYWORDS_IN_ONE_INTERVAL):
                     time_to_keyword.pop()
             subtitle_interval=[]
             keyword_number=0
+
+    count = Counter(values[1] for values in time_to_keyword)
+    total_count = sum(keyword_count.values())
+    
+    filter_list = []
+
+    for name, freq in count.iteritems():
+        if float(freq)/total_count >= 0.012:
+            print name
+        else:
+            filter_list.append(name)
+
+    for name in filter_list:
+        keyword_list.remove(name)
+        time_to_keyword = list( (values[0], values[1]) for values in time_to_keyword if values[1] != name) 
+
 
     # Find the max keyword count as leading keyword
     keyword_list[0] = max(keyword_count, key=keyword_count.get)
