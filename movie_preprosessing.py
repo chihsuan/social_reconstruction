@@ -17,6 +17,7 @@ from modules import csv_io
 from modules import time_format
 from modules import cv_image
 
+FRAME_INTERVAL = 12
 OUTPUT_PATH = 'output/'
 
 class Pthread (threading.Thread):
@@ -81,7 +82,7 @@ def movie_prosessing(movie_file, two_entity_file, search_result_file):
                                                   'ID' : face_count,
                                                   'frame_position': frame_position,
                                                   'face_id': face_count} 
-                frame_position += 12
+                frame_position += FRAME_INTERVAL
     #close video  
     videoInput.release()
 
