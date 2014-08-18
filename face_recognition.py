@@ -14,6 +14,8 @@ from modules import cv_face
 
 OUTPUT_PATH = 'output/'
 
+match_threshold = 15
+
 class Pthread (threading.Thread):
 
     def __init__(self, threadID, name, frame_list, threadLock):
@@ -100,7 +102,7 @@ def img_match(frame_list):
             face_list2 = frame_list[keys[j]]
             face1 = face_list1[0]
             face2 = face_list2[0]
-            if cv_face.match(15, face1['img'], face2['img'], face1['ID'], face2['ID'], detector, matcher):
+            if cv_face.match(match_threshold, face1['img'], face2['img'], face1['ID'], face2['ID'], detector, matcher):
                 update_id(face_list2, face1['ID'])
                 face_list1 += face_list2
                 face_list2 = []
