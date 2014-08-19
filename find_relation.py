@@ -9,9 +9,9 @@ from modules import csv_io
 from modules import json_io
 from modules import time_format
 
-INTERVAL = 24 * 60 * 4.5
+INTERVAL = 24 * 60 * 7
 
-def find_relation(keyword_list_file, search_result_file):
+def find_relation(keyword_list_file, search_result_file, time_interval):
  
     time_to_keyword = csv_io.read_csv(search_result_file)
     keyword_list = csv_io.read_csv(keyword_list_file)
@@ -32,24 +32,27 @@ def find_relation(keyword_list_file, search_result_file):
     
     relations = {}
     for i in range(1, len(keyword_list)):
-        relations.update( {keyword_list[i] : count_ralation(keyword_list[i], frame_list, frame_to_keyword)} )
- 
+        relations.update( {keyword_list[i] : count_ralation(keyword_list[i], frame_list, frame_to_keyword, time_interval)} )
+
+    count = 0
     proper_relation = {}
     for name, relation in relations.iteritems():
         total = sum(relation.values())
         proper_relation[name] = {}
-        print name, 
+        #print name, 
         for person in relation:
             if proper_test(total, leading_keyword, person, relation):
                 proper_relation[name][person] = relation[person]
-                print person , relation[person],
+                #print person , relation[person],
+                count += 1
+        #print
 
-        print
 
+    print str(time_interval/(24*60)) + ',' + str(count)
     json_io.write_json('output/relations.json', proper_relation)
 
 
-def count_ralation(keyword, keys, frame_to_keyword): 
+def count_ralation(keyword, keys, frame_to_keyword, INTERVAL): 
     
     relation = {}
     lower_bound  = -1
@@ -88,12 +91,12 @@ def proper_test(total, leading_keyword, person, relation):
         if (float(relation[person]) / total > (1.0/len(relation) )):
             return True
     else:
-        if (float(relation[person]) / total > (1.0/len(relation) )) and  relation[person] > relation[leading_keyword]:
+        if (float(relation[person]) / total > (1.0/len(relation) )) and  relation[person] >= relation[leading_keyword]:
             return True
     return False
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
-        find_relation(sys.argv[1], sys.argv[2])
+        find_relation(sys.argv[1], sys.argv[2], sys.argv[3])
     else:
-        find_relation('output/keyword_list.csv', 'output/search_result.csv')
+        find_relation('output/keyword_list.csv', 'output/search_result.csv', float(sys.argv[1]) * 24)
