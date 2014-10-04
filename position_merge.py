@@ -1,4 +1,5 @@
 #!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 '''
 This program is to merge face by near frame and near face position 
 input: 1. frame.json

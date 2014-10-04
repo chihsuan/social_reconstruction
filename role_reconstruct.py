@@ -1,5 +1,6 @@
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 '''
-
 This program is to reconstruct roles in movie 
 input: 1.face_recongition.json 2.keword_list_file
 output: role.json

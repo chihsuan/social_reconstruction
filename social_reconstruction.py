@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 '''
 This program will reconstruct the social relation between movie role-net
 input: 1. keyword_list.json 2. relations.json

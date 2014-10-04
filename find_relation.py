@@ -1,3 +1,53 @@
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
+'''
+This program is to reconstruct roles in movie 
+input: 1.face_recongition.json 2.keword_list_file
+output: role.json
+
+'''
+
+import sys
+import cv2
+import cv2.cv as cv
+
+from modules import json_io
+from modules import csv_io
+from modules import cv_face
+
+OUTPUT_PATH = 'output/'
+MIN_MATCH = 5
+
+def reconstruct_role(recongition_merge_file, keword_list_file):
+
+    keyword_to_frame = json_io.read_json(recongition_merge_file)
+    keword_list = csv_io.read_csv(keword_list_file)
+
+    leading_keyword = keword_list[0]
+
+    for keyword, frame_list in keyword_to_frame.iteritems():
+        for frame in frame_list:
+            for face in frame_list[frame]:
+                name = keyword + str(face['frame_position']) + '.jpg'
+                face['img'] = cv2.imread(OUTPUT_PATH + '/img/' + name)
+
+    detector, matcher =  cv_face.init_feature('orb')
+    # Find other characters
+    face_list = {}
+    character_list = {}
+    for keyword, frame_list in keyword_to_frame.iteritems():
+        print keyword 
+        for frame in frame_list:
+            for face in frame_list[frame]:
+                if face and face['face_id'] not in face_list:
+                    face_list[face['face_id']] = []
+                if face:
+                    face_list[face['face_id']].append(face)
+        rank  = sorted(face_list, key=lambda k: len(face_list[k]), reverse=True)
+        character_list[keyword] = [face_list[rank[0]]]
+        i=0
+        #for face in face_list[rank[5]]:
+         #   i+=1
 '''
 This program is to find relation between keywords
 input: 1. keyword_list_file, 2.search_result_file
@@ -39,13 +89,13 @@ def find_relation(keyword_list_file, search_result_file, time_interval):
     for name, relation in relations.iteritems():
         total = sum(relation.values())
         proper_relation[name] = {}
-        #print name, 
+        print name, 
         for person in relation:
             if proper_test(total, leading_keyword, person, relation):
                 proper_relation[name][person] = relation[person]
-                #print person , relation[person],
+                print person , relation[person],
                 count += 1
-        #print
+        print
 
 
     print str(time_interval/(24*60)) + ',' + str(count)
@@ -97,6 +147,6 @@ def proper_test(total, leading_keyword, person, relation):
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
-        find_relation(sys.argv[1], sys.argv[2], sys.argv[3])
+        find_relation(sys.argv[1], sys.argv[2], sys.argv[3], 4.5*60)
     else:
-        find_relation('output/keyword_list.csv', 'output/search_result.csv', float(sys.argv[1]) * 24)
+        find_relation('output/keyword_list.csv', 'output/search_result.csv', 24*60*4.5)

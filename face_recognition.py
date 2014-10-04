@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 '''
 This programe is to merge frame by openCV face recongnition
 input: position_merge.json

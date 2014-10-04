@@ -1,4 +1,5 @@
 #!/usr/bin/env python2.7
+# -*- coding: utf-8 -*-
 
 '''
 This program is to detect the face in movie with two_entity_file and keyword_search_result (detect in specific frame)
